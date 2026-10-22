@@ -1,0 +1,281 @@
+<div class="flex flex-col min-h-full font-['Poppins'] bg-syndify-bg overflow-x-hidden w-full max-w-full">
+
+  <app-page-header 
+    class="shrink-0 w-full"
+    title="Copropriétaires"
+    description="Gérez l'ensemble de vos biens en toute simplicité."
+    [parentPath]="residenceInfo.nom" 
+    currentPath="Copropriétaires">
+    
+    <div class="w-full md:w-auto mt-3 md:mt-0 flex items-center">
+      <button (click)="openAddModal()" class="btn-primary w-full md:w-auto justify-center shadow-none">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg> 
+        Ajouter un copropriétaire
+      </button>
+    </div>
+  </app-page-header>
+
+  <div class="syndify-tabs-container w-full overflow-x-auto custom-scrollbar px-4 md:px-8 shadow-none border-b border-gray-100">
+    <div class="syndify-tabs-wrapper min-w-max flex-nowrap">
+      
+      <button (click)="changerTab('actif')" 
+              class="syndify-tab whitespace-nowrap"
+              [ngClass]="currentStatus === 'actif' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+        Copropriétaires Actifs
+      </button>
+
+      <button (click)="changerTab('inactif')" 
+              class="syndify-tab whitespace-nowrap"
+              [ngClass]="currentStatus === 'inactif' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+        Copropriétaires Inactifs
+      </button>
+
+      <button (click)="changerTab('en_attente')" 
+              class="syndify-tab whitespace-nowrap"
+              [ngClass]="currentStatus === 'en_attente' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+       Copropriétaires En attente
+      </button>
+
+    </div>
+  </div>
+
+  <div class="flex-1 p-4 md:p-8 flex flex-col overflow-visible w-full min-w-0 max-w-full box-border">
+    <div class="bg-white rounded-xl shadow-none border border-gray-200 flex flex-col relative !overflow-visible z-10 w-full max-w-full min-w-0">
+      <div *ngIf="activeDropdown" (click)="closeDropdown()" class="fixed inset-0 z-30 cursor-default"></div>
+
+      <div class="syndify-table-container !overflow-visible overflow-x-auto w-full max-w-full custom-scrollbar pb-24">
+        
+        <table class="syndify-table w-full whitespace-nowrap min-w-max text-left">
+          <thead class="syndify-table-thead">
+            <tr>
+              <th class="syndify-table-th px-4 py-3 hidden md:table-cell">Identifiant</th>
+              <th class="syndify-table-th px-4 py-3">Nom</th>
+              <th class="syndify-table-th px-4 py-3 hidden md:table-cell">Téléphone</th>
+              <th class="syndify-table-th px-4 py-3 hidden sm:table-cell">Email</th>
+              <th class="syndify-table-th px-4 py-3">N° (Lots)</th>
+              <th class="syndify-table-th px-4 py-3 hidden sm:table-cell">Status</th>
+              <th class="syndify-table-th text-right px-4 py-3 pr-6">Outils</th>
+            </tr>
+          </thead>
+          <tbody class="syndify-table-tbody">
+            
+            <tr *ngIf="isLoading && coproprietaires.length === 0" class="bg-white hover:bg-white">
+              <td colspan="7" class="border-b-0 p-0 text-center">
+                <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl text-gray-400 italic">
+                  <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                  <span class="text-[13px] sm:text-[14px] font-normal">Chargement des copropriétaires...</span>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="!isLoading && coproprietaires.length === 0" class="bg-white hover:bg-white">
+              <td colspan="7" class="border-b-0 p-0 text-center">
+                <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl p-4">
+                  <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                  </svg>
+                  <span class="text-gray-400 italic text-[12px] sm:text-[14px] font-normal">Aucun copropriétaire trouvé.</span>
+                </div>
+              </td>
+            </tr>
+            
+            <ng-container *ngIf="coproprietaires && coproprietaires.length > 0">
+              <tr *ngFor="let copro of coproprietaires; let isLast = last" 
+                  (click)="openEditModal(copro)" class="syndify-table-tr hover:bg-gray-50/50 transition-colors cursor-pointer group"
+                  [ngClass]="{'z-[50] relative': activeDropdown === copro.user_id}">
+                  
+                <td class="syndify-table-td px-4 py-3 hidden md:table-cell">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-bold bg-blue-50 text-blue-600 border border-blue-100 truncate max-w-[120px]" [title]="formatCoproId(copro.user_id)">
+                      {{ formatCoproId(copro.user_id) }}
+                  </span>
+                </td>
+                
+                <td class="syndify-table-td px-4 py-3">
+                  <div class="w-full min-w-0 max-w-[150px] sm:max-w-[200px] md:max-w-[250px]">
+                    <span class="font-bold text-[12px] sm:text-[13px] text-syndify-dark truncate block w-full" [title]="copro.nom">
+                      {{ copro.nom }}
+                    </span>
+                  </div>
+                </td>
+                
+                <td class="syndify-table-td px-4 py-3 hidden md:table-cell text-[12px] sm:text-[13px]">
+                  {{ copro.tel || '--' }}
+                </td>
+                
+                <td class="syndify-table-td px-4 py-3 text-gray-500 font-medium hidden sm:table-cell text-[12px] sm:text-[13px]">
+                  {{ copro.email }}
+                </td>
+                
+                <td class="syndify-table-td px-4 py-3">
+                  <button (click)="voirListeLots(copro, $event)" 
+                        class="inline-flex items-center justify-center min-w-[28px] h-[28px] px-2 rounded-lg text-[12px] sm:text-[13px] font-bold cursor-pointer transition-all hover:brightness-95 border-0" 
+                        [ngClass]="copro.lots > 0 ? 'bg-syndify-accent/10 text-syndify-accent hover:bg-syndify-accent/20' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                    {{ copro.lots }}
+                  </button>
+                </td>
+                
+                <td class="syndify-table-td px-4 py-3 hidden sm:table-cell">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold border"
+                        [ngClass]="{
+                          'bg-green-50 text-green-600 border-green-200': copro.status === 'Actif',
+                          'bg-yellow-50 text-yellow-600 border-yellow-200': copro.status === 'En attente',
+                          'bg-gray-50 text-gray-500 border-gray-200': copro.status === 'Inactif'
+                        }">
+                    {{ copro.status }}
+                  </span>
+                </td>
+                
+                <td class="syndify-table-td text-right px-4 py-3 pr-6">
+                  <div class="relative inline-block text-left">
+                    
+                    <button (click)="$event.stopPropagation(); toggleDropdown(copro.user_id, $event)" 
+                            [ngClass]="{'bg-syndify-accent/10 text-syndify-accent': activeDropdown === copro.user_id}" 
+                            class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-gray-400 hover:text-syndify-dark hover:bg-gray-100 transition-all cursor-pointer border-0 bg-transparent outline-none ml-auto">
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14a2 2 0 100-4 2 2 0 000 4zm-7 0a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4z"></path></svg>
+                    </button>
+                    
+                    <div *ngIf="activeDropdown === copro.user_id" 
+                          class="absolute syndify-dropdown-menu right-0 z-[99] min-w-[160px] shadow-lg rounded-xl border border-gray-100 bg-white py-1.5"
+                          [ngClass]="isLast && coproprietaires.length > 1 ? 'bottom-[calc(100%+4px)] origin-bottom-right' : 'top-[calc(100%+4px)] origin-top-right'">
+                      
+                      <button *ngIf="copro.status === 'En attente'" (click)="activerCopro(copro, $event)" class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-green-50">
+                        <svg class="w-4 h-4 text-green-500 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        <span class="font-bold text-[12px] sm:text-[13px] text-green-600 transition-colors">Activer le compte</span>
+                      </button>
+
+                      <div *ngIf="copro.status === 'En attente'" class="syndify-dropdown-divider my-1 border-t border-gray-100"></div>
+
+                      <button (click)="$event.stopPropagation(); voirHistorique(copro.user_id)" class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-green-500 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-green-500 transition-colors">Historique</span>
+                      </button>
+                      
+                      <div class="syndify-dropdown-divider my-1 border-t border-gray-100"></div>
+                      
+                      <button (click)="$event.stopPropagation(); openEditModal(copro)" class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-syndify-accent transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-syndify-accent transition-colors">Modifier</span>
+                      </button>
+                      
+                      <div class="syndify-dropdown-divider my-1 border-t border-gray-100"></div>
+                      
+                      <button (click)="$event.stopPropagation(); supprimerCopro(copro.user_id)" class="syndify-dropdown-item-danger group w-full text-left flex items-center px-4 py-2 hover:bg-red-50">
+                        <svg class="w-4 h-4 text-red-400 group-hover:text-red-600 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span class="font-bold text-[12px] sm:text-[13px] text-red-500 group-hover:text-red-600 transition-colors">Supprimer</span>
+                      </button>
+
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div *ngIf="isAddModalOpen" class="fixed inset-0 z-[99] flex items-center justify-center bg-[#0B0F24]/50 backdrop-blur-sm transition-opacity p-4 w-full h-full">
+    <div class="bg-white rounded-2xl w-full max-w-2xl flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-none relative overflow-visible">
+      
+      <div class="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-white rounded-t-2xl z-20 shrink-0">
+        <div>
+          <h3 class="text-[15px] sm:text-[18px] font-bold text-syndify-dark tracking-tight">{{ newCopro.user_id ? 'Modifier le copropriétaire' : 'Nouveau copropriétaire' }}</h3>
+          <p class="text-[11px] sm:text-[13px] text-gray-500 font-medium mt-0.5">Renseignez les informations ci-dessous.</p>
+        </div>
+        <button (click)="closeAddModal()" class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer border-0 outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar bg-gray-50/30">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Identifiant</label>
+            <input type="text" [value]="newCopro.user_id ? formatCoproId(newCopro.user_id) : ''" placeholder="Généré automatiquement" disabled class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-gray-100/50 text-gray-400 font-medium text-[12px] sm:text-[13px] outline-none cursor-not-allowed shadow-none">
+          </div>
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Nom & Prénom <span class="text-red-500">*</span></label>
+            <input type="text" [(ngModel)]="newCopro.nom" placeholder="Ex: Karim Benali" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all shadow-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Adresse Email <span class="text-red-500">*</span></label>
+            <input type="email" [(ngModel)]="newCopro.email" placeholder="nom@exemple.com" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all shadow-none">
+          </div>
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Téléphone</label>
+            <input type="tel" [(ngModel)]="newCopro.tel" placeholder="Ex: 06 12 34 56 78" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all shadow-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Statut <span class="text-red-500">*</span></label>
+            <select [(ngModel)]="newCopro.status" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all cursor-pointer shadow-none">
+              <option value="Actif">Actif</option>
+              <option value="En attente">En attente</option>
+              <option value="Inactif">Inactif</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+      
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 border-t border-gray-100 bg-white rounded-b-2xl z-20 shrink-0 w-full">
+        <button (click)="closeAddModal()" class="btn-secondary w-full sm:w-auto justify-center">
+          Annuler
+        </button>
+        <button (click)="ajouterCopro()" [disabled]="isAdding || !newCopro.nom || !newCopro.email" class="btn-primary w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4 mr-2 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B0F24]/50 backdrop-blur-sm transition-opacity p-4 w-full h-full">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-none mx-auto">
+      <div class="p-5 sm:p-6 text-center">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 sm:w-8 sm:h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <h3 class="text-[16px] sm:text-[18px] font-bold text-syndify-dark mb-2">Confirmer la suppression</h3>
+        <p class="text-[12px] sm:text-[13px] text-gray-500 font-medium px-2 sm:px-0">Êtes-vous sûr de vouloir supprimer ce copropriétaire ? Cette action est irréversible.</p>
+      </div>
+      <div class="flex flex-col-reverse sm:flex-row justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-4 bg-gray-50/50 border-t border-gray-100 shrink-0 w-full">
+        <button (click)="closeDeleteModal()" class="btn-secondary w-full justify-center">
+          Annuler
+        </button>
+        <button (click)="confirmerSuppression()" class="btn-primary !bg-red-500 hover:!bg-red-600 w-full justify-center !border-0">
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-1/2 md:-translate-x-1/2 md:right-auto z-[200] transition-all duration-300 ease-out transform"
+       [ngClass]="showNotification ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'">
+    <div class="flex items-center gap-3 px-4 md:px-5 py-3 md:py-3.5 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border w-full max-w-sm md:max-w-md mx-auto"
+         [ngClass]="{
+           'bg-green-50 border-green-100 text-green-800': notificationType === 'success',
+           'bg-red-50 border-red-100 text-red-800': notificationType === 'error'
+         }">
+      <div *ngIf="notificationType === 'success'" class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <div *ngIf="notificationType === 'error'" class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      </div>
+      <p class="text-[12px] md:text-[13.5px] font-semibold pr-2 flex-1">{{ notificationMessage }}</p>
+      <button (click)="showNotification = false" class="ml-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors shrink-0" [ngClass]="notificationType === 'success' ? 'text-green-600' : 'text-red-600'">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,366 @@
+<div class="flex flex-col min-h-full font-['Poppins'] bg-syndify-bg overflow-x-hidden">
+
+  <app-page-header 
+    class="shrink-0 relative"
+    [parentPath]="residence.nom" 
+    currentPath="Tableau de bord"
+    title="Tableau de bord"
+    [description]="residence.adresse">
+    
+    <div class="absolute left-6 md:left-8 flex items-center gap-2.5 z-50 exercice-dropdown">
+      <span class="text-white/70 text-[13px] font-medium tracking-wide">Exercice :</span>
+
+      <div class="relative flex items-center bg-[#152D26] border border-[#2D5A4C] rounded-lg px-3 py-1.5 hover:bg-[#11251F] transition-all cursor-pointer min-w-[240px]" 
+           (click)="isExerciceMenuOpen = !isExerciceMenuOpen; $event.stopPropagation()">
+
+        <div class="flex items-center justify-between w-full gap-2">
+          <span class="text-white font-bold text-[13px]">
+            <ng-container *ngFor="let ex of exercices">
+              <span *ngIf="ex.id === exerciceSelectionne">{{ ex.dateDebut }} – {{ ex.dateFin }}</span>
+            </ng-container>
+            <span *ngIf="!exerciceSelectionne">Aucun Exercice</span>
+          </span>
+          <svg class="w-4 h-4 text-white opacity-80 transition-transform duration-200 shrink-0"
+               [ngClass]="{'rotate-180': isExerciceMenuOpen}"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+
+        <div *ngIf="isExerciceMenuOpen"
+             class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[250px] bg-white rounded-xl border border-gray-100 py-1.5 z-[999] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)]"
+             (click)="$event.stopPropagation()">
+
+          <div *ngIf="exercices.length === 0" class="px-4 py-3 text-[13px] text-gray-400 italic">
+            Aucun exercice disponible
+          </div>
+
+          <div *ngFor="let ex of exercices"
+               (click)="exerciceSelectionne = ex.id; onExerciceChange(); isExerciceMenuOpen = false"
+               class="px-3 py-2.5 text-[13px] font-bold transition-colors cursor-pointer flex items-center justify-between"
+               [ngClass]="exerciceSelectionne === ex.id ? 'bg-[#FFF8EB] text-syndify-accent' : 'text-gray-700 hover:bg-gray-50 hover:text-syndify-dark'">
+            {{ ex.dateDebut }} – {{ ex.dateFin }}
+            <svg *ngIf="exerciceSelectionne === ex.id" class="w-4 h-4 text-syndify-accent shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </app-page-header>
+  
+  <div class="flex-1 p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+    
+    <!-- ===================== SOLDES ===================== -->
+    <div class="lg:col-span-2 flex flex-col">
+      <div class="syndify-section-header">
+        <h2 class="syndify-section-title">Soldes des copropriétaires</h2>
+        <p class="syndify-section-subtitle">Suivi des balances et états de paiement par membre.</p>
+      </div>
+      <div class="syndify-table-container flex flex-col flex-1 h-[420px] shadow-none">
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          <table class="syndify-table relative">
+            <thead class="syndify-table-thead sticky top-0 z-10">
+              <tr>
+                <th class="syndify-table-th hidden lg:table-cell">Identifiant</th>
+
+                <th class="syndify-table-th">Nom</th>
+                <th class="syndify-table-th text-right">Solde</th>
+              </tr>
+            </thead>
+            <tbody class="syndify-table-tbody">
+
+              <tr *ngIf="isLoading" class="bg-white hover:bg-white">
+                <td colspan="3" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl text-gray-400 italic">
+                    <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-[14px] font-normal">Chargement des soldes...</span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!isLoading && (!soldes || soldes.length === 0)" class="bg-white hover:bg-white">
+                <td colspan="3" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl">
+                    <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="text-gray-400 italic text-[14px] font-normal">Aucun solde trouvé.</span>
+                  </div>
+                </td>
+              </tr>
+
+              <ng-container *ngIf="!isLoading && soldes && soldes.length > 0">
+                <tr *ngFor="let s of soldes" class="syndify-table-tr hover:bg-gray-50 transition-colors">
+<td class="syndify-table-td hidden lg:table-cell">
+  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-bold bg-blue-50 text-blue-600 border border-blue-100">
+    {{ s.id }}
+  </span>
+</td>
+                  <td class="syndify-table-td font-bold text-syndify-dark">
+                    <div class="flex items-center gap-2">
+                      {{ s.nom }}
+                      <button *ngIf="s.isNegatif"
+                              (click)="relancerCoproprietaire(s)"
+                              [disabled]="isSendingRappel === (s.su_identifier || s.user_id)"
+                              class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-colors rounded-lg text-[11px] font-bold border-0 cursor-pointer disabled:opacity-50">
+                        <span *ngIf="isSendingRappel !== s.su_identifier">Relancer</span>
+                        <span *ngIf="isSendingRappel === s.su_identifier">Envoi...</span>
+                      </button>
+                    </div>
+                  </td>
+
+                  <td class="syndify-table-td text-right">
+                    <span class="font-extrabold" [ngClass]="s.isNegatif ? 'text-red-500' : 'text-green-600'">
+                      {{ s.solde }} <span class="text-[10px] opacity-60 ml-0.5">MAD</span>
+                    </span>
+                  </td>
+
+                </tr>
+              </ng-container>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-gray-50/50 !py-3 px-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 rounded-b-xl z-10 relative">
+          <a routerLink="/impayes" class="text-[13px] text-syndify-accent font-bold hover:underline flex items-center gap-1.5 cursor-pointer">
+            Voir la liste des impayés
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+          <div class="flex items-center gap-3">
+            <span class="text-[14px] text-gray-400 font-bold mb-1">Total dû</span>
+            <span class="text-[15.5px] font-black text-red-600">{{ totalDu }} MAD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== BUDGET ===================== -->
+    <div class="lg:col-span-1 flex flex-col">
+      <div class="syndify-section-header">
+        <h2 class="syndify-section-title">Consommation du budget</h2>
+        <p class="syndify-section-subtitle">Analyse de l'utilisation des fonds annuels.</p>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-none flex flex-col flex-1 justify-center">
+
+        <div class="flex border-b border-gray-100 shrink-0">
+          <button (click)="budgetTab = 'previsionnel'"
+                  class="flex-1 py-3 text-[12.5px] font-bold transition-colors border-b-2"
+                  [ngClass]="budgetTab === 'previsionnel' ? 'text-syndify-accent border-syndify-accent' : 'text-gray-400 border-transparent hover:text-gray-600'">
+            Prévisionnel
+          </button>
+          <button (click)="budgetTab = 'travaux'"
+                  class="flex-1 py-3 text-[12.5px] font-bold transition-colors border-b-2"
+                  [ngClass]="budgetTab === 'travaux' ? 'text-syndify-accent border-syndify-accent' : 'text-gray-400 border-transparent hover:text-gray-600'">
+            Travaux
+          </button>
+        </div>
+
+        <div class="p-6 flex flex-col flex-1 justify-center gap-6">
+          <div class="relative flex items-center justify-center">
+            <svg viewBox="0 0 100 100" class="w-44 h-44 transform -rotate-90">
+              <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f3f4f6" stroke-width="10"/>
+              <circle cx="50" cy="50" r="40" fill="transparent"
+                      stroke="#F4B840" stroke-width="10" stroke-linecap="round"
+                      [attr.stroke-dasharray]="(budget[budgetTab].pourcentage * 251.2 / 100) + ' 251.2'"/>
+            </svg>
+            <div class="absolute flex flex-col items-center">
+              <span class="text-[26px] font-black text-syndify-dark">{{ budget[budgetTab].pourcentage }}%</span>
+              <span class="text-[13px] text-gray-400">Utilisé</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between border-t border-gray-100 pt-5 mt-2">
+            <div class="flex flex-col items-center flex-1">
+              <p class="text-[11.5px] text-gray-400 font-bold mb-1 uppercase tracking-wide">Budget total</p>
+              <p class="text-[14px] font-black text-syndify-dark">
+                {{ budget[budgetTab].total }} <span class="text-[10px] font-semibold text-gray-400">MAD</span>
+              </p>
+            </div>
+            <div class="h-8 w-px bg-gray-100 shrink-0"></div>
+            <div class="flex flex-col items-center flex-1">
+              <p class="text-[11.5px] text-gray-400 font-bold mb-1 uppercase tracking-wide">Dépensé</p>
+              <p class="text-[14px] font-black text-red-500">
+                {{ budget[budgetTab].depenses }} <span class="text-[10px] font-semibold text-red-300">MAD</span>
+              </p>
+            </div>
+            <div class="h-8 w-px bg-gray-100 shrink-0"></div>
+            <div class="flex flex-col items-center flex-1">
+              <p class="text-[11.5px] text-gray-400 font-bold mb-1 uppercase tracking-wide">Restant</p>
+              <p class="text-[14px] font-black text-emerald-600">
+                {{ (+budget[budgetTab].total - +budget[budgetTab].depenses) | number:'1.0-0' }}
+                <span class="text-[10px] font-semibold text-emerald-300">MAD</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ===================== FLUX DE TRÉSORERIE + DÉTAILS ===================== -->
+<div class="lg:col-span-3 grid grid-cols-1 lg:grid-cols-3 gap-8 mt-2 lg:mt-0" style="align-items: stretch;">
+
+  <!-- FLUX DE TRÉSORERIE -->
+  <div class="lg:col-span-2 flex flex-col">
+    <div class="syndify-section-header">
+      <h2 class="syndify-section-title">Flux de trésorerie</h2>
+      <p class="syndify-section-subtitle">Évolution globale des encaissements et dépenses de l'année.</p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-none flex flex-col flex-1">
+      <div class="w-full relative flex-1 min-h-[200px]">
+        <canvas id="lineChartFlux"></canvas>
+      </div>
+      <div class="flex justify-center gap-6 mt-5 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
+          <span class="text-[14px] font-bold text-gray-600">Encaissements</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>
+          <span class="text-[14px] font-bold text-gray-600">Dépenses</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÉTAILS DE L'EXERCICE -->
+  <div class="lg:col-span-1 flex flex-col">
+    <div class="syndify-section-header mb-4">
+      <h2 class="syndify-section-title">Détails de l'exercice</h2>
+      <p class="syndify-section-subtitle">Répartition par période.</p>
+    </div>
+
+    <div class="flex flex-col flex-1 bg-white rounded-xl border border-gray-200 p-4">
+
+      <div class="flex border-b border-gray-200 mb-4 shrink-0">
+        <button (click)="budgetTab = 'previsionnel'; currentIndex = 0"
+                class="flex-1 py-2 text-[12.5px] font-bold transition-colors border-b-2"
+                [ngClass]="budgetTab === 'previsionnel' ? 'text-syndify-accent border-syndify-accent' : 'text-gray-400 border-transparent hover:text-gray-600'">
+          Prévisionnel
+        </button>
+        <button (click)="budgetTab = 'travaux'; currentIndex = 0"
+                class="flex-1 py-2 text-[12.5px] font-bold transition-colors border-b-2"
+                [ngClass]="budgetTab === 'travaux' ? 'text-syndify-accent border-syndify-accent' : 'text-gray-400 border-transparent hover:text-gray-600'">
+          Travaux
+        </button>
+      </div>
+
+      <div class="flex flex-col flex-1 gap-3 overflow-hidden">
+
+        <div *ngIf="!trimestres[budgetTab] || trimestres[budgetTab].length === 0" class="text-center py-6">
+          <p class="text-[13px] text-gray-400 italic">Aucune donnée pour ce budget.</p>
+        </div>
+
+        <div *ngFor="let trim of trimestres[budgetTab] | slice:currentIndex:currentIndex+3"
+             class="bg-white rounded-xl border border-gray-200 flex items-center transition-all hover:border-gray-300 p-4 gap-5 shrink-0">
+
+          <div class="relative w-[60px] h-[60px] flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+              <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f3f4f6" stroke-width="12"/>
+              <circle cx="50" cy="50" r="40" fill="transparent"
+                      [attr.stroke]="((trim.pourcentage * 1) || 0) > 80 ? '#EF4444' : '#F4B840'"
+                      stroke-width="12"
+                      [attr.stroke-linecap]="((trim.pourcentage * 1) || 0) > 0 ? 'round' : 'butt'"
+                      [attr.stroke-dasharray]="(((trim.pourcentage * 1) || 0) * 251.2 / 100) + ' 251.2'"/>
+            </svg>
+            <div class="absolute flex flex-col items-center">
+              <span class="text-[13px] font-black"
+                    [ngClass]="((trim.pourcentage * 1) || 0) > 80 ? 'text-red-500' : 'text-syndify-dark'">
+                {{ ((trim.pourcentage * 1) || 0) | number:'1.0-0' }}%
+              </span>
+            </div>
+          </div>
+
+          <div class="flex-1 flex flex-col overflow-hidden">
+            <span class="font-bold text-syndify-dark whitespace-nowrap truncate capitalize text-[14px]">
+              {{ trim.nom || 'Période' }}
+            </span>
+            <div class="flex flex-col mt-0.5">
+              <span class="text-[13.5px] font-bold text-gray-800">
+                {{ trim.depense || 0 }} <span class="text-[10px] text-gray-400 font-semibold">MAD</span>
+              </span>
+              <span class="text-[11.5px] text-gray-400 font-medium whitespace-nowrap">Sur {{ trim.total || 0 }} MAD</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex-1"></div>
+
+      </div>
+
+      <!-- Navigation périodes -->
+      <div class="flex items-center justify-center gap-3 mt-4 shrink-0">
+        <button (click)="currentIndex = currentIndex - 3"
+                [disabled]="currentIndex === 0"
+                class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-syndify-dark hover:border-syndify-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <span class="text-[12px] text-gray-400 font-medium">
+          {{ currentIndex + 1 }}–{{ minVal(currentIndex + 3, trimestres[budgetTab]?.length || 0) }} / {{ trimestres[budgetTab]?.length || 0 }}
+        </span>
+        <button (click)="currentIndex = currentIndex + 3"
+                [disabled]="currentIndex + 3 >= (trimestres[budgetTab]?.length || 0)"
+                class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-syndify-dark hover:border-syndify-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+  </div>
+
+
+  <!-- Toast notification -->
+  <div *ngIf="showToastNotif"
+       class="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-lg transition-all"
+       [ngClass]="toastType === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'">
+    <svg *ngIf="toastType === 'success'" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+    </svg>
+    <svg *ngIf="toastType === 'error'" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+    <span class="text-[14px] font-semibold">{{ toastMessage }}</span>
+  </div>
+
+  <!-- Confirm modal relance -->
+  <div *ngIf="isConfirmModalOpen"
+       class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl p-7 w-full max-w-sm mx-4 flex flex-col gap-5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="font-bold text-syndify-dark text-[15px]">Envoyer un rappel ?</p>
+          <p class="text-gray-400 text-[13px] mt-0.5">Un email sera envoyé à <strong>{{ soldeToRelance?.nom }}</strong>.</p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button (click)="fermerConfirmModal()"
+                class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-[13px] font-bold hover:bg-gray-50 cursor-pointer transition-colors">
+          Annuler
+        </button>
+        <button (click)="confirmerRelance()"
+                class="flex-1 py-2.5 rounded-xl bg-syndify-accent text-white text-[13px] font-bold hover:opacity-90 cursor-pointer transition-opacity">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

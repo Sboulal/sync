@@ -1,0 +1,303 @@
+<div class="flex flex-col min-h-full font-['Poppins'] bg-syndify-bg overflow-x-hidden w-full">
+
+  <app-page-header 
+    class="shrink-0"
+    [parentPath]="residenceInfo.nom"
+    currentPath="Exercices"
+    title="Exercices"
+    description="Gérez l'ensemble de vos biens en toute simplicité.">
+    
+    <button (click)="openAddModal()" class="btn-primary shadow-none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+      Ouvrir un exercice
+    </button>
+  </app-page-header>
+
+  <div class="flex-1 p-4 md:p-6 lg:p-8 flex flex-col gap-6 overflow-visible w-full min-w-0 max-w-full box-border">
+
+    <div *ngIf="activeDropdown" (click)="closeDropdown()" class="fixed inset-0 z-30 cursor-default"></div>
+
+    <div class="syndify-table-container flex-1 overflow-x-auto !overflow-visible pb-24 w-full max-w-full">
+      <table class="syndify-table w-full text-left whitespace-nowrap min-w-max">
+
+        <thead class="syndify-table-thead">
+          <tr>
+            <th class="syndify-table-th px-4 py-3">Exercice</th>
+            <th class="syndify-table-th px-4 py-3 hidden sm:table-cell">Périodicité</th>
+            <th class="syndify-table-th px-4 py-3 hidden sm:table-cell">Status</th>
+            <th class="syndify-table-th text-right px-4 py-3 pr-6">Action</th>
+          </tr>
+        </thead>
+
+        <tbody class="syndify-table-tbody">
+
+          <tr *ngIf="isLoading" class="bg-white hover:bg-white">
+            <td colspan="4" class="border-b-0 p-0 text-center">
+              <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl text-gray-400 italic">
+                <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-[13px] sm:text-[14px] font-normal">Chargement des données...</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && (!exercices || exercices.length === 0)" class="bg-white hover:bg-white">
+            <td colspan="4" class="border-b-0 p-0 text-center">
+              <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl p-4">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-gray-400 italic text-[12px] sm:text-[14px] font-normal">Aucun exercice trouvé.</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let ex of exercices; let isLast = last" 
+              class="syndify-table-tr group hover:bg-gray-50/50 transition-colors" 
+              [ngClass]="{'relative z-[50]': activeDropdown === ex.se_identifier}">
+
+            <td class="syndify-table-td px-4 py-3">
+              <div class="flex items-center gap-3 w-full min-w-0">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 shrink-0">
+                  <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="truncate font-bold text-[11px] sm:text-[13px] text-syndify-dark block w-full max-w-[200px] sm:max-w-none" [title]="'Du ' + (ex.start_date | date:'dd MMMM yyyy') + ' au ' + (ex.end_date | date:'dd MMMM yyyy')">
+                  Du {{ ex.start_date | date:'dd MMMM yyyy' }} au {{ ex.end_date | date:'dd MMMM yyyy' }}
+                </span>
+              </div>
+            </td>
+
+            <td class="syndify-table-td px-4 py-3 hidden sm:table-cell">
+              <span class="inline-flex items-center px-2 py-1 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11.5px] font-bold bg-gray-100 text-gray-600 capitalize">
+                {{ ex.period || ex.periode || '—' }}
+              </span>
+            </td>
+
+            <td class="syndify-table-td px-4 py-3 hidden sm:table-cell">
+              <span class="inline-flex items-center px-2 py-1 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11.5px] font-bold tracking-wide capitalize"
+                    [ngClass]="{
+                      'bg-green-50 text-green-600': ex.status === 'Clos' || ex.status === 'clos',
+                      'bg-blue-50 text-blue-600': ex.status === 'en cours',
+                      'bg-orange-50 text-orange-600': ex.status === 'en attente' || ex.status === 'A clore' || ex.status === 'a clore'
+                    }">
+                <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full mr-1 sm:mr-1.5 shrink-0"
+                      [ngClass]="{
+                        'bg-green-500': ex.status === 'Clos' || ex.status === 'clos',
+                        'bg-blue-500': ex.status === 'en cours',
+                        'bg-orange-500': ex.status === 'en attente' || ex.status === 'A clore' || ex.status === 'a clore'
+                      }"></span>
+                {{ ex.status }}
+              </span>
+            </td>
+
+            <td class="syndify-table-td text-right px-4 py-3 pr-6">
+              <div class="relative inline-block text-left">
+                <button (click)="$event.stopPropagation(); toggleDropdown(ex.se_identifier, $event)"
+                        [ngClass]="{'bg-syndify-accent/10 text-syndify-accent': activeDropdown === ex.se_identifier}"
+                        class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-gray-400 hover:text-syndify-dark hover:bg-gray-100 transition-all cursor-pointer ml-auto bg-transparent border-0 outline-none">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14a2 2 0 100-4 2 2 0 000 4zm-7 0a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4z"></path></svg>
+                </button>
+
+                <div *ngIf="activeDropdown === ex.se_identifier"
+                     (click)="$event.stopPropagation()"
+                     class="absolute syndify-dropdown-menu right-0 z-[99] min-w-[160px] shadow-lg rounded-xl border border-gray-100 bg-white py-1.5"
+                     [ngClass]="isLast && exercices.length > 1 ? 'bottom-[calc(100%+4px)] origin-bottom-right' : 'top-[calc(100%+4px)] origin-top-right'">
+
+                  <button type="button" *ngIf="ex.status?.toLowerCase() === 'en attente'"
+                          (click)="demarrerExercice(ex)"
+                          class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                    <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-blue-600 transition-colors">Démarrer</span>
+                  </button>
+
+                  <button type="button" *ngIf="['en cours', 'a clore'].includes(ex.status?.toLowerCase())"
+                          (click)="$event.stopPropagation(); cloturerExercice(ex)"
+                          class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                    <svg class="w-4 h-4 text-orange-400 group-hover:text-orange-500 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-orange-500 transition-colors">Clôturer</span>
+                  </button>
+
+                  <button type="button" *ngIf="ex.status === 'Clos' || ex.status === 'clos'"
+                          (click)="$event.stopPropagation(); cloturerExercice(ex)"
+                          class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                    <svg class="w-4 h-4 text-green-500 group-hover:text-green-600 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-green-600 transition-colors">Voir la clôture</span>
+                  </button>
+
+                  <div *ngIf="ex.status?.toLowerCase() === 'en attente'" class="syndify-dropdown-divider my-1 border-t border-gray-100"></div>
+
+                  <button type="button" *ngIf="ex.status?.toLowerCase() === 'en attente'"
+                          (click)="$event.stopPropagation(); openEditModal(ex)"
+                          class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-syndify-accent transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-syndify-accent transition-colors">Modifier</span>
+                  </button>
+
+                  <div *ngIf="ex.status !== 'Clos' && ex.status !== 'clos'" class="syndify-dropdown-divider my-1 border-t border-gray-100"></div>
+
+                  <button type="button" *ngIf="ex.status !== 'Clos' && ex.status !== 'clos'"
+                          (click)="$event.stopPropagation(); supprimerExercice(ex.se_identifier)"
+                          class="syndify-dropdown-item-danger group w-full text-left flex items-center px-4 py-2 hover:bg-red-50">
+                    <svg class="w-4 h-4 text-red-400 group-hover:text-red-600 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <span class="font-bold text-[12px] sm:text-[13px] text-red-500 group-hover:text-red-600 transition-colors">Supprimer</span>
+                  </button>
+
+                </div>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="isAddModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B0F24]/60 backdrop-blur-sm p-4 w-full h-full">
+    <div class="bg-white rounded-2xl w-full max-w-2xl flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-none overflow-hidden max-h-[90vh]">
+
+      <div class="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-white z-20 shrink-0">
+        <div>
+          <h3 class="text-[15px] sm:text-[17px] font-bold text-syndify-dark">{{ newExercice.se_identifier ? "Modifier l'exercice" : 'Nouvel Exercice' }}</h3>
+          <p class="text-[11px] sm:text-[12px] text-gray-500 font-medium mt-0.5">Configurez les dates et les budgets.</p>
+        </div>
+        <button (click)="closeAddModal()" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all border-0 cursor-pointer outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 overflow-y-auto max-h-[70vh] custom-scrollbar space-y-5 sm:space-y-6 bg-gray-50/30 flex-1">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5">Début</label>
+            <input type="date" [(ngModel)]="newExercice.start_date" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-[12px] sm:text-[13px] font-medium text-gray-700 outline-none focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 transition-all shadow-none">
+          </div>
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5">Fin</label>
+            <input type="date" [(ngModel)]="newExercice.end_date" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-[12px] sm:text-[13px] font-medium text-gray-700 outline-none focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 transition-all shadow-none">
+          </div>
+          <div class="w-full">
+            <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5">Période</label>
+            <select [(ngModel)]="newExercice.periode" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 text-[12px] sm:text-[13px] font-medium text-gray-700 outline-none focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 transition-all shadow-none cursor-pointer">
+              <option value="trimestre">Trimestriel</option>
+              <option value="quadrimestre">Quadrimestriel</option>
+              <option value="mensuel">Mensuel</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <div class="w-full">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3 w-full">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <h4 class="text-[13px] sm:text-[14px] font-bold text-syndify-dark">1. Budget Prévisionnel</h4>
+              <span class="px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold tracking-wide w-fit"
+                    [ngClass]="calculateRemaining('previsionnel') === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
+                Reste : {{ calculateRemaining('previsionnel') }} MAD
+              </span>
+            </div>
+            <div class="relative w-full sm:w-auto mt-2 sm:mt-0">
+              <input type="number" [(ngModel)]="newExercice.budget_previsionnel_total" placeholder="0.00"
+                     class="w-full sm:w-32 pl-3 pr-10 py-2 sm:py-1.5 rounded-lg border text-[13px] font-bold text-left sm:text-right outline-none transition-colors shadow-none"
+                     [ngClass]="calculateRemaining('previsionnel') === 0 ? 'border-green-300 focus:border-green-500' : 'border-gray-200 focus:border-syndify-accent'">
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] sm:text-[12px] font-bold text-gray-400">MAD</span>
+            </div>
+          </div>
+
+          <div class="syndify-table-container overflow-x-auto w-full max-w-full">
+            <table class="syndify-table w-full min-w-max">
+              <tbody class="syndify-table-tbody">
+                <tr *ngFor="let cle of newExercice.list_cles_previsionnel" class="syndify-table-tr flex flex-col sm:table-row w-full p-3 sm:p-0 border-b border-gray-100 sm:border-0 gap-2">
+                  <td class="syndify-table-td w-full sm:w-1/2 p-0 sm:p-3 sm:px-4 border-0 sm:border-b">
+                    <span class="text-[12px] sm:text-[13px] text-syndify-dark font-bold truncate block w-full">{{ cle.nom }}</span>
+                  </td>
+                  <td class="syndify-table-td w-full sm:w-1/2 text-left sm:text-right p-0 sm:p-3 sm:px-4 border-0 sm:border-b mt-2 sm:mt-0">
+                    <div class="flex items-center justify-start sm:justify-end gap-2 w-full">
+                      <input type="number" [(ngModel)]="cle.montant" class="w-full sm:w-32 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-[12px] sm:text-[13px] font-bold text-left sm:text-right outline-none focus:border-syndify-accent transition-all shadow-none">
+                      <span class="text-[11px] sm:text-[12px] font-bold text-gray-400 whitespace-nowrap">/ {{ newExercice.budget_previsionnel_total || 0 }} MAD</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3 w-full">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <h4 class="text-[13px] sm:text-[14px] font-bold text-syndify-dark">2. Budget Travaux</h4>
+              <span class="px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-bold tracking-wide w-fit"
+                    [ngClass]="calculateRemaining('travaux') === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'">
+                Reste : {{ calculateRemaining('travaux') }} MAD
+              </span>
+            </div>
+            <div class="relative w-full sm:w-auto mt-2 sm:mt-0">
+              <input type="number" [(ngModel)]="newExercice.budget_travaux_total" placeholder="0.00"
+                     class="w-full sm:w-32 pl-3 pr-10 py-2 sm:py-1.5 rounded-lg border text-[13px] font-bold text-left sm:text-right outline-none transition-colors shadow-none"
+                     [ngClass]="calculateRemaining('travaux') === 0 ? 'border-green-300 focus:border-green-500' : 'border-gray-200 focus:border-syndify-accent'">
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] sm:text-[12px] font-bold text-gray-400">MAD</span>
+            </div>
+          </div>
+
+          <div class="syndify-table-container overflow-x-auto w-full max-w-full">
+            <table class="syndify-table w-full min-w-max">
+              <tbody class="syndify-table-tbody">
+                <tr *ngFor="let cle of newExercice.list_cles_travaux" class="syndify-table-tr flex flex-col sm:table-row w-full p-3 sm:p-0 border-b border-gray-100 sm:border-0 gap-2">
+                  <td class="syndify-table-td w-full sm:w-1/2 p-0 sm:p-3 sm:px-4 border-0 sm:border-b">
+                    <span class="text-[12px] sm:text-[13px] text-syndify-dark font-bold truncate block w-full">{{ cle.nom }}</span>
+                  </td>
+                  <td class="syndify-table-td w-full sm:w-1/2 text-left sm:text-right p-0 sm:p-3 sm:px-4 border-0 sm:border-b mt-2 sm:mt-0">
+                    <div class="flex items-center justify-start sm:justify-end gap-2 w-full">
+                      <input type="number" [(ngModel)]="cle.montant" class="w-full sm:w-32 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-[12px] sm:text-[13px] font-bold text-left sm:text-right outline-none focus:border-syndify-accent transition-all shadow-none">
+                      <span class="text-[11px] sm:text-[12px] font-bold text-gray-400 whitespace-nowrap">/ {{ newExercice.budget_travaux_total || 0 }} MAD</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 border-t border-gray-100 bg-white z-20 shrink-0 w-full">
+        <button (click)="closeAddModal()" class="btn-secondary w-full sm:w-auto justify-center">Annuler</button>
+        <button (click)="submitExercice()" [disabled]="isSubmitting" class="btn-primary justify-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
+          <span *ngIf="!isSubmitting">Enregistrer</span>
+          <span *ngIf="isSubmitting">Enregistrement... ⏳</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B0F24]/60 backdrop-blur-sm p-4 w-full h-full">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-none mx-auto">
+      <div class="p-5 sm:p-6 text-center">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 sm:w-8 sm:h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <h3 class="text-[16px] sm:text-[17px] font-bold text-syndify-dark mb-2">Confirmer la suppression</h3>
+        <p class="text-[12px] sm:text-[13px] text-gray-500 font-medium leading-relaxed px-2 sm:px-0">Êtes-vous sûr de vouloir supprimer cet exercice ? Les soldes des propriétaires seront ajustés.</p>
+      </div>
+      <div class="flex flex-col-reverse sm:flex-row justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-4 bg-gray-50/50 border-t border-gray-100 shrink-0 w-full">
+        <button (click)="closeDeleteModal()" class="btn-secondary w-full justify-center">Annuler</button>
+        <button (click)="confirmerSuppression()" class="btn-primary !bg-red-500 hover:!bg-red-600 w-full justify-center !border-0">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showNotification"
+       class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[999] flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5 rounded-xl shadow-lg border transition-all duration-300 w-[calc(100%-2rem)] sm:w-auto max-w-sm"
+       [ngClass]="notificationType === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'">
+    <svg *ngIf="notificationType === 'success'" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <svg *ngIf="notificationType === 'error'" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+    <span class="text-[12px] sm:text-[13px] font-bold">{{ notificationMessage }}</span>
+  </div>
+
+</div>

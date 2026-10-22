@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-white font-['Poppins'] flex flex-col">
+
+    <nav class="flex justify-between items-center px-6 py-6 md:px-12 bg-white sticky top-0 z-50">
+        <a routerLink="/" class="flex items-center gap-2 text-[#1B3B32] text-2xl font-black tracking-tight cursor-pointer outline-none">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            Syndify
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-[14px] font-bold text-gray-800">
+            <a routerLink="/" class="hover:text-[#F4B840] transition">Accueil</a>
+            <a routerLink="/politique-protection-donnees" class="hover:text-[#F4B840] transition">Documentation</a>
+            <a routerLink="/contact" class="text-[#F4B840] relative flex items-center">
+                Contact <span class="absolute -right-2 top-0.5 w-1 h-1 bg-[#F4B840] rounded-full"></span>
+            </a>
+        </div>
+        <a routerLink="/login" class="bg-[#F4B840] text-white px-6 py-2.5 rounded-xl font-bold text-[13px] flex items-center gap-2 hover:brightness-105 transition shadow-sm cursor-pointer outline-none">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+            Démarrer
+        </a>
+    </nav>
+
+    <div class="max-w-4xl w-full mx-auto px-6 pt-16 pb-10">
+        <h1 class="text-4xl md:text-[44px] font-black text-[#1B3B32] leading-tight mb-4 tracking-tight">
+            Entrons en <span class="text-[#F4B840] opacity-90">Contact</span>
+        </h1>
+        <p class="text-gray-600 font-medium text-[15px] leading-relaxed max-w-3xl">
+            Que vous soyez un syndic professionnel, un résident ou un particulier, nous sommes là pour répondre à vos questions et vous accompagner. N'hésitez pas à nous contacter, nous serons ravis de vous aider !
+        </p>
+    </div>
+
+    <div class="max-w-4xl w-full mx-auto px-6 pb-20 flex-1">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+            <div class="bg-[#F4F5F7] rounded-3xl p-5 border border-transparent focus-within:border-gray-200 transition-colors">
+                <label class="block text-[13px] font-bold text-[#1B3B32] mb-1">Votre nom complet</label>
+                <input type="text" placeholder="Jean Dupont" class="w-full bg-transparent outline-none text-[14px] font-medium text-gray-700 placeholder-gray-400">
+            </div>
+            
+            <div class="bg-[#F4F5F7] rounded-3xl p-5 border border-transparent focus-within:border-gray-200 transition-colors relative">
+                <label class="block text-[13px] font-bold text-[#1B3B32] mb-1">Vous êtes</label>
+                <select class="w-full bg-transparent outline-none text-[14px] font-medium text-gray-700 appearance-none cursor-pointer">
+                    <option>Syndic Professionnel / Bénévole</option>
+                    <option>Résident</option>
+                    <option>Particulier</option>
+                </select>
+                <svg class="absolute right-5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#1B3B32] pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
+            </div>
+
+            <div class="bg-[#F4F5F7] rounded-3xl p-5 border border-transparent focus-within:border-gray-200 transition-colors">
+                <label class="block text-[13px] font-bold text-[#1B3B32] mb-1">Votre Email</label>
+                <input type="email" placeholder="Entrer votre texte" class="w-full bg-transparent outline-none text-[14px] font-medium text-gray-700 placeholder-gray-400">
+            </div>
+
+            <div class="bg-[#F4F5F7] rounded-3xl p-5 border border-transparent focus-within:border-gray-200 transition-colors">
+                <label class="block text-[13px] font-bold text-[#1B3B32] mb-1">Sujet du message</label>
+                <input type="text" placeholder="Entrer votre texte" class="w-full bg-transparent outline-none text-[14px] font-medium text-gray-700 placeholder-gray-400">
+            </div>
+        </div>
+
+        <div class="bg-[#F4F5F7] rounded-3xl p-5 border border-transparent focus-within:border-gray-200 transition-colors mb-6 h-48">
+            <label class="block text-[13px] font-bold text-[#1B3B32] mb-1">Votre message</label>
+            <textarea placeholder="Entrer votre texte" class="w-full h-32 bg-transparent outline-none text-[14px] font-medium text-gray-700 placeholder-gray-400 resize-none"></textarea>
+        </div>
+
+        <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-6">
+            <p class="text-[12px] text-gray-500 font-medium max-w-2xl leading-relaxed">
+                *Sachez que les données collectées sur le formulaire que vous avez rempli sont conservées en toute sécurité. 
+                Ces données sont susceptibles d'être transmises à nos sous-traitants. En savoir plus sur notre 
+                <a routerLink="/politique-protection-donnees" class="text-[#1B3B32] font-bold hover:underline cursor-pointer">politique de protection des données.</a>
+            </p>
+            <button type="button" class="bg-[#1B3B32] text-white px-8 py-4 rounded-2xl font-bold text-[14px] flex items-center justify-center gap-3 hover:bg-[#122A23] transition-all shrink-0 cursor-pointer shadow-md outline-none w-full md:w-auto">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                Envoyer votre message
+            </button>
+        </div>
+
+    </div>
+
+     <div class="px-4 md:px-8 pb-4 md:pb-8">
+        <footer class="bg-[#1B3B32] rounded-[30px] md:rounded-[40px] overflow-hidden flex flex-col text-gray-300">
+            
+            <div class="p-10 md:p-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+                <div class="flex items-start gap-2 text-white text-xl font-black tracking-tight">
+                    <svg class="w-7 h-7 text-[#F4B840]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Syndify
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold text-[15px] mb-4">Pour nous contacter</h4>
+                    <ul class="space-y-3 text-[13px] font-medium">
+                        <li><a href="mailto:contact-inquiries@syndify.com" class="hover:text-[#F4B840] transition">contact-inquiries@syndify.com</a></li>
+                        <li><a href="mailto:contact-support@syndify.com" class="hover:text-[#F4B840] transition">contact-support@syndify.com</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold text-[15px] mb-4">Applications mobiles</h4>
+                    <ul class="space-y-3 text-[13px] font-medium">
+                        <li><a class="hover:text-[#F4B840] transition">Téléchargez sur App Store</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">Téléchargez sur Google Play</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold text-[15px] mb-4">Quick links</h4>
+                    <ul class="space-y-3 text-[13px] font-medium">
+                        <li><a routerLink="/" class="hover:text-[#F4B840] transition">Accueil</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">Documentation</a></li>
+                        <li><a routerLink="/contact" class="text-[#F4B840] font-bold">Contact</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">FAQ</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">Conditions d'utilisation</a></li>
+                        <li><a routerLink="/politique-protection-donnees" class="hover:text-[#F4B840] transition">Politiques de sécurité</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-[#122721] px-10 md:px-16 py-6 flex flex-col sm:flex-row justify-between items-center text-[12px] font-medium gap-4">
+                <p>© 2026 Syndify. Tous droits réservés.</p>
+                <p>Développé par <a target="_blank" rel="noopener noreferrer" href="https://www.spherebleue.com" class="font-bold text-[#F4B840] hover:underline">SPHERE BLEUE</a></p>
+            </div>
+            
+        </footer>
+    </div>
+</div>

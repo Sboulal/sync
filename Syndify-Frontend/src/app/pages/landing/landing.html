@@ -1,0 +1,194 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+<nav>
+    <a (click)="scrollTo('accueil')" class="nav-logo cursor-pointer">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
+        Syndify
+    </a>
+    <div class="nav-links">
+        <a routerLink="/" class="active cursor-pointer">Accueil</a>
+        <a (click)="scrollTo('comment-ca-marche')" class="cursor-pointer">Comment ça marche</a>
+        <a (click)="scrollTo('tarifs')" class="cursor-pointer">Tarifs</a>
+        <a routerLink="/contact" class="cursor-pointer">Contact</a>
+    </div>
+</nav>
+
+<header id="accueil">
+    <div class="hero-badge">
+        <span class="hero-dot"></span>
+        Nouveau sur le marché
+    </div>
+    <h1>
+        La solution complète pour<br>
+        <span class="accent"> une gestion simplifiée</span> de vos immeubles.
+    </h1>
+    <p class="hero-sub">
+        Oubliez les fichiers Excel compliqués et les documents perdus. Gérez vos copropriétés,
+        vos appels de fonds, et vos dépenses depuis une seule plateforme sécurisée.
+ <div class="hero-btns">
+    <a routerLink="/home" class="btn-primary cursor-pointer">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+        Démarrer
+    </a>
+    <a (click)="scrollTo('tarifs')" class="btn-secondary cursor-pointer">Voir nos tarifs</a>
+</div>
+</header>
+
+<div class="mockup-wrap">
+    <div class="mockup-image"></div>
+</div>
+
+<section id="comment-ca-marche" class="features">
+    <span class="section-label">Pourquoi Syndify</span>
+    <h2 class="section-title">Tout ce dont vous avez besoin,<br>dans un seul outil.</h2>
+    <p class="section-sub">
+        Avec Syndify, la gestion de votre résidence devient plus efficace et transparente.
+        Découvrez nos fonctionnalités pensées pour vous faciliter le quotidien.
+    </p>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon icon-accent">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <h3>Simplicité d'Utilisation</h3>
+            <p>Une interface intuitive conçue pour que tout le monde puisse l'utiliser, même sans bagage technologique.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-green">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </div>
+            <h3>Support Réactif</h3>
+            <p>Bénéficiez d'un accompagnement personnalisé et d'un support rapide pour résoudre vos problèmes.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon icon-teal">
+                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <h3>Sécurité Optimisée</h3>
+            <p>Vos données financières sont stockées en toute sécurité avec des sauvegardes quotidiennes.</p>
+        </div>
+    </div>
+</section>
+
+<div class="stats-strip">
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">Résidences gérées</div></div>
+    <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Clients satisfaits</div></div>
+    <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Support disponible</div></div>
+    <div class="stat"><div class="stat-num">0 DH</div><div class="stat-label">Pour commencer</div></div>
+</div>
+
+<section id="tarifs" class="pricing">
+    <div class="pricing-inner">
+        <span class="section-label">Tarification</span>
+        <h2 class="section-title">Tout ce que vous devez savoir !</h2>
+        <p class="section-sub" style="margin: 12px auto 0; text-align: center;">
+            Choisissez le plan qui vous convient et ne payez que ce dont vous avez besoin.
+        </p>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="price-icon" style="background: rgba(244,184,64,0.12);">
+                    <svg width="22" height="22" fill="none" stroke="#F4B840" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <h3>Pack Free</h3>
+                <div class="price-amount">
+                    <span class="price-num">0</span>
+                    <span class="price-cur" style="color: #F4B840;">Dhs</span>
+                    <span class="price-per">/ mois</span>
+                </div>
+                <p class="price-desc">Parfait pour les syndics bénévoles qui gèrent une petite résidence.</p>
+                <button class="price-btn btn-accent">S'inscrire</button>
+            </div>
+
+            <div class="price-card featured">
+                <div class="featured-badge">Recommandé</div>
+                <div class="price-icon" style="background: #1B3B32;">
+                    <svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h3>Pack Basic</h3>
+                <div class="price-amount">
+                    <span class="price-num">200</span>
+                    <span class="price-cur" style="color: #1B3B32;">Dhs</span>
+                    <span class="price-per">/ mois</span>
+                </div>
+                <p class="price-desc">La solution idéale pour les syndics avec un parc moyen.</p>
+                <button class="price-btn btn-green">S'inscrire</button>
+            </div>
+
+            <div class="price-card">
+                <div class="price-icon" style="background: rgba(27,59,50,0.08);">
+                    <svg width="22" height="22" fill="none" stroke="#1B3B32" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <h3>Pack Pro</h3>
+                <div class="price-amount">
+                    <span class="price-num">270</span>
+                    <span class="price-cur" style="color: #1B3B32;">Dhs</span>
+                    <span class="price-per">/ mois</span>
+                </div>
+                <p class="price-desc">Pour les grandes agences de gestion immobilière.</p>
+                <button class="price-btn btn-outline">Contacter les ventes</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="contact-footer-wrapper">
+    <footer class="contact-footer">
+        
+        <div class="footer-top-section">
+            <div class="footer-brand">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                Syndify
+            </div>
+            
+            <div class="footer-col">
+                <h4>Pour nous contacter</h4>
+                <ul>
+                    <li><a >contact-inquiries@syndify.com</a></li>
+                    <li><a >contact-support@syndify.com</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Applications mobiles</h4>
+                <ul>
+                    <li><a >Téléchargez sur App Store</a></li>
+                    <li><a >Téléchargez sur Google Play</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick links</h4>
+                   <ul class="space-y-3 text-[13px] font-medium">
+                        <li><a routerLink="/" class="hover:text-[#F4B840] transition">Accueil</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">Documentation</a></li>
+                        <li><a routerLink="/contact" class="text-[#F4B840] font-bold">Contact</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">FAQ</a></li>
+                        <li><a class="hover:text-[#F4B840] transition">Conditions d'utilisation</a></li>
+                        <li><a routerLink="/politique-protection-donnees" class="hover:text-[#F4B840] transition">Politiques de sécurité</a></li>
+                    </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom-bar">
+            <p>© 2026 Syndify. Tous droits réservés.</p>
+            <p>Développé par <a target="_blank" rel="noopener noreferrer" href="https://www.spherebleue.com" class="font-bold text-[#F4B840] hover:underline">SPHERE BLEUE</a></p>
+        </div>
+        
+    </footer>
+</div>

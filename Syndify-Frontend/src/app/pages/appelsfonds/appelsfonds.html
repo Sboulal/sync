@@ -1,0 +1,403 @@
+<div class="flex flex-col min-h-full font-['Poppins'] bg-syndify-bg overflow-x-hidden">
+
+  <app-page-header 
+    class="shrink-0 relative"
+    [parentPath]="residenceInfo.nom"
+    currentPath="Appels de fonds"
+    title="Appels de fonds"
+    description="Consultez et gérez les appels de fonds de votre résidence.">
+    
+    <div class="absolute left-6 md:left-8 flex items-center gap-2.5 z-50">
+      <span class="text-white/70 text-[13px] font-medium tracking-wide shrink-0">Exercice :</span>
+
+      <div class="relative flex items-center bg-[#152D26] border border-[#2D5A4C] rounded-lg px-3 py-2 hover:bg-[#11251F] transition-all cursor-pointer min-w-[230px]" 
+           (click)="isExerciceMenuOpen = !isExerciceMenuOpen">
+
+        <div class="flex items-center justify-between w-full gap-2">
+          <span class="text-white font-bold text-[13px] truncate">
+            <span *ngIf="exerciceInfos">{{ exerciceInfos.dateDebut }} – {{ exerciceInfos.dateFin }}</span>
+            <span *ngIf="!exerciceInfos">Aucun Exercice</span>
+          </span>
+          <svg class="w-4 h-4 text-white opacity-80 transition-transform duration-200 shrink-0"
+               [ngClass]="{'rotate-180': isExerciceMenuOpen}"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+
+        <div *ngIf="isExerciceMenuOpen"
+             class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[240px] bg-white rounded-xl border border-gray-100 py-2 z-[999] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)]">
+          
+          <div *ngIf="exercicesActifs.length > 0">
+            <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Actifs</div>
+            <div *ngFor="let ex of exercicesActifs"
+                 (click)="changerExercice(ex.id); isExerciceMenuOpen = false; $event.stopPropagation()"
+                 class="px-3 py-2 text-[13px] font-bold transition-colors cursor-pointer flex items-center justify-between group"
+                 [ngClass]="exerciceInfos?.id === ex.id ? 'bg-[#FFF8EB] text-syndify-accent' : 'text-gray-700 hover:bg-gray-50 hover:text-syndify-dark'">
+              Du {{ ex.dateDebut }} au {{ ex.dateFin }}
+              <svg *ngIf="exerciceInfos?.id === ex.id" class="w-4 h-4 text-syndify-accent shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+          </div>
+
+          <div *ngIf="exercicesActifs.length > 0 && exercicesClos.length > 0" class="h-px bg-gray-100 mx-3 my-2"></div>
+
+          <div *ngIf="exercicesClos.length > 0">
+            <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Clos</div>
+            <div *ngFor="let ex of exercicesClos"
+                 (click)="changerExercice(ex.id); isExerciceMenuOpen = false; $event.stopPropagation()"
+                 class="px-3 py-2 text-[13px] font-bold transition-colors cursor-pointer flex items-center justify-between group"
+                 [ngClass]="exerciceInfos?.id === ex.id ? 'bg-gray-100 text-gray-800' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'">
+              Du {{ ex.dateDebut }} au {{ ex.dateFin }}
+              <svg *ngIf="exerciceInfos?.id === ex.id" class="w-4 h-4 text-gray-600 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+          </div>
+
+          <div *ngIf="exercicesActifs.length === 0 && exercicesClos.length === 0" class="px-3 py-3 text-center text-[12px] text-gray-400 italic">
+            Aucun exercice trouvé.
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </app-page-header>
+
+  <div class="syndify-tabs-container mb-6 shadow-none">
+    <div class="syndify-tabs-wrapper">
+      <button (click)="switchTab('previsionnel')" 
+              class="syndify-tab"
+              [ngClass]="activeTab === 'previsionnel' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+        Appels de fonds du budget prévisionnel
+      </button>
+      <button (click)="switchTab('travaux')" 
+              class="syndify-tab"
+              [ngClass]="activeTab === 'travaux' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+        Appels de fonds du budget travaux
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 px-6 md:px-8 pb-8 flex flex-col overflow-visible">
+
+    <ng-template #noExercice>
+      <div *ngIf="!isLoading" class="mb-4">
+        <p class="text-gray-400 font-medium italic">Aucun exercice actif trouvé pour cette résidence.</p>
+      </div>
+    </ng-template>
+
+    <div class="flex flex-col gap-8">
+
+      <!-- APPELS PLANIFIÉS -->
+      <div class="flex flex-col">
+        <div class="syndify-section-header">
+          <h2 class="syndify-section-title">Appels de fonds planifiés</h2>
+          <p class="syndify-section-subtitle">Génération et suivi des appels réguliers de l'exercice.</p>
+        </div>
+
+        <div class="syndify-table-container">
+          <table class="syndify-table">
+            <thead class="syndify-table-thead">
+              <tr>
+                <th class="syndify-table-th">Date</th>
+                <th class="syndify-table-th">Généré</th>
+                <th class="syndify-table-th">Envoyé</th>
+                <th class="syndify-table-th">Montant</th>
+              </tr>
+            </thead>
+            <tbody class="syndify-table-tbody">
+
+              <tr *ngIf="isLoading" class="bg-white hover:bg-white">
+                <td colspan="4" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl text-gray-400 italic">
+                    <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-[14px] font-normal">Chargement des appels...</span>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- 🟢 الرسالة غتبان غير يلا كان Exercice مسدود و الخانة خاوية مافيهاش الداتا -->
+              <tr *ngIf="!isLoading && exerciceInfos && !isExerciceActif && (!appelsPlanifies || appelsPlanifies.length === 0)" class="bg-white hover:bg-white">
+                <td colspan="4" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl p-4">
+                    <svg class="w-10 h-10 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span class="text-gray-400 italic text-[14px] font-normal max-w-sm whitespace-normal text-center">
+                      Aucun appel planifié généré. Les appels planifiés ne peuvent être créés que pour un exercice <strong class="text-syndify-dark">en cours</strong>.
+                    </span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!isLoading && isExerciceActif && (!appelsPlanifies || appelsPlanifies.length === 0)" class="bg-white hover:bg-white">
+                <td colspan="4" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl">
+                    <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="text-gray-400 italic text-[14px] font-normal">Aucun appel de fonds planifié trouvé.</span>
+                    <button (click)="creerAppelsPlanifies()" class="mt-2 bg-syndify-dark hover:bg-black text-white px-4 py-2 rounded-lg text-[12px] font-bold transition-all border-0 cursor-pointer shadow-none flex items-center gap-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                      Générer les appels de fonds
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- 🟢 حيدنا isExerciceActif من هنا، باش الطابلو يبان ديما يلا كانت كاينا الداتا واخا يتسد لعام -->
+              <ng-container *ngIf="!isLoading && appelsPlanifies && appelsPlanifies.length > 0">
+                <tr *ngFor="let appel of appelsPlanifies; let isLast = last" 
+                    class="syndify-table-tr hover:bg-gray-50 transition-colors"
+                    [ngClass]="{'border-b': !isLast}">
+                  
+                  <td class="syndify-table-td text-gray-500">{{ appel.due_date | date:'dd MMMM yyyy':'':'fr' }}</td>
+                  
+                  <td class="syndify-table-td">
+                    <div class="flex flex-col items-start">
+                      <div *ngIf="appel.is_generated" 
+                           class="text-[12.5px] font-bold text-emerald-600 flex items-center gap-1.5 cursor-pointer hover:underline" 
+                           (click)="allerVersDetails(appel.af_identifier)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        Généré ({{ appel.number_generated }})
+                      </div>
+                      <span *ngIf="!appel.is_generated && !isPeriodeAtteinte(appel.due_date)"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-gray-400 text-[11.5px] font-bold border border-gray-100">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        À venir
+                      </span>
+                      <!-- 🟢 البوطون دياا Générer كيبان غير يلا كان Exercice مفتوح -->
+                      <button *ngIf="!appel.is_generated && isPeriodeAtteinte(appel.due_date) && isExerciceActif" 
+                              (click)="genererAppel(appel)"
+                              class="px-4 py-2 text-[12px] font-bold rounded-lg border-0 transition-all shadow-none bg-syndify-dark text-white hover:bg-black cursor-pointer">
+                        Générer
+                      </button>
+                      <span *ngIf="!appel.is_generated && isPeriodeAtteinte(appel.due_date) && !isExerciceActif" class="text-gray-300 text-[11px] font-bold">--</span>
+                    </div>
+                  </td>
+                  
+                  <td class="syndify-table-td">
+                    <div class="flex flex-col items-start">
+                      <button *ngIf="!appel.is_sent" (click)="envoyerAppel(appel)" [disabled]="!appel.is_generated" 
+                              class="px-4 py-2 text-[12px] font-bold rounded-lg transition-all border-0 shadow-none" 
+                              [ngClass]="!appel.is_generated ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-syndify-accent text-white hover:brightness-110 cursor-pointer'">
+                        Envoyer
+                      </button>
+                      <div *ngIf="appel.is_sent" class="text-[12.5px] font-bold text-emerald-600 flex items-center gap-1.5 cursor-pointer hover:underline" (click)="allerVersDetails(appel.af_identifier)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Envoyé ({{ appel.number_sent }})
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <td class="syndify-table-td font-bold text-syndify-dark">
+                    {{ appel.amount | number:'1.2-2' }} <span class="text-[10px] opacity-60 ml-0.5 font-medium">MAD</span>
+                  </td>
+                </tr>
+              </ng-container>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- APPELS EXCEPTIONNELS -->
+      <div class="flex flex-col">
+        <div class="mb-4 flex items-center justify-between">
+          <div class="syndify-section-header">
+            <h2 class="syndify-section-title">Appels de fonds exceptionnels</h2>
+            <p class="syndify-section-subtitle">Génération et suivi des appels pour les imprévus ou travaux.</p>
+          </div>
+          <!-- 🟢 خبينا بوطون Nouvel appel إلا كان Exercice مسدود -->
+          <button *ngIf="isExerciceActif" (click)="isModalOpen = true; modalType = 'exceptionnel'" class="flex items-center gap-1.5 bg-[#F4B840] hover:bg-[#E3A733] text-white px-4 py-2 rounded-lg text-[12px] font-bold transition-all border-0 cursor-pointer shadow-none shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            Nouvel appel
+          </button>
+        </div>
+
+        <div class="syndify-table-container">
+          <table class="syndify-table">
+            <thead class="syndify-table-thead">
+              <tr>
+                <th class="syndify-table-th">Date</th>
+                <th class="syndify-table-th">Libellé</th>
+                <th class="syndify-table-th">Clé de répartition</th>
+                <th class="syndify-table-th">Généré</th>
+                <th class="syndify-table-th">Envoyé</th>
+                <th class="syndify-table-th text-right">Montant</th>
+              </tr>
+            </thead>
+            <tbody class="syndify-table-tbody">
+
+              <tr *ngIf="isLoading" class="bg-white hover:bg-white">
+                <td colspan="6" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl text-gray-400 italic">
+                    <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-[14px] font-normal">Chargement...</span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!isLoading && (!appelsExceptionnels || appelsExceptionnels.length === 0)" class="bg-white hover:bg-white">
+                <td colspan="6" class="border-b-0 p-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl">
+                    <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="text-gray-400 italic text-[14px] font-normal">Aucun appel de fonds exceptionnel trouvé.</span>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- 🟢 الطابلو كيبان ديما يلا فيه الداتا، سواء مسدود ولا محلول -->
+              <tr *ngFor="let appel of appelsExceptionnels" class="syndify-table-tr hover:bg-gray-50 transition-colors">
+                <td class="syndify-table-td text-gray-500">{{ appel.due_date | date:'dd MMMM yyyy':'':'fr' }}</td>
+                <td class="syndify-table-td font-bold text-syndify-dark">
+                  <div class="truncate max-w-[200px]">{{ appel.title || '--' }}</div>
+                </td>
+                <td class="syndify-table-td text-gray-500">
+                  <div class="truncate max-w-[150px]">{{ getNomCle(appel.cle_repartition_id) || '--' }}</div>
+                </td>
+
+                <td class="syndify-table-td">
+                  <button *ngIf="!appel.is_generated && isExerciceActif" (click)="genererAppel(appel)" 
+                          class="px-3 py-1.5 text-[11px] font-bold bg-syndify-dark text-white rounded-lg cursor-pointer border-0 shadow-none hover:bg-black transition-all">
+                    Générer
+                  </button>
+                  <span *ngIf="!appel.is_generated && !isExerciceActif" class="text-gray-300 text-[11px] font-bold">--</span>
+                  
+                  <span *ngIf="appel.is_generated" 
+                        class="text-[12px] font-bold text-emerald-600 flex items-center gap-1 cursor-pointer hover:underline" 
+                        (click)="allerVersDetails(appel.af_identifier)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    Généré ({{ appel.number_generated }})
+                  </span>
+                </td>
+
+                <td class="syndify-table-td">
+                  <button *ngIf="appel.is_generated && !appel.is_sent" (click)="envoyerAppel(appel)" 
+                          class="px-3 py-1.5 text-[11px] font-bold bg-syndify-accent text-white rounded-lg cursor-pointer border-0 shadow-none hover:brightness-110 transition-all">
+                    Envoyer
+                  </button>
+                  <span *ngIf="appel.is_sent" 
+                        class="text-[12px] font-bold text-emerald-600 flex items-center gap-1 cursor-pointer hover:underline" 
+                        (click)="allerVersDetails(appel.af_identifier)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    Envoyé ({{ appel.number_sent }})
+                  </span>
+                  <span *ngIf="!appel.is_generated" class="text-gray-300 text-[11px] font-bold">--</span>
+                </td>
+
+                <td class="syndify-table-td text-right font-bold text-syndify-dark">
+                  {{ appel.amount | number:'1.2-2' }} <span class="text-[10px] opacity-60 ml-0.5">MAD</span>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL NOUVEL APPEL EXCEPTIONNEL -->
+  <div *ngIf="isModalOpen && modalType === 'exceptionnel'" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B0F24]/60 backdrop-blur-sm p-4 transition-opacity">
+    <div class="bg-white rounded-2xl w-full max-w-lg md:max-w-xl shadow-none border border-gray-200 overflow-hidden flex flex-col transform transition-all font-['Poppins']">
+      
+      <div class="flex items-center justify-between px-8 py-5 border-b border-gray-100 bg-white">
+        <div>
+          <h3 class="text-[18px] font-bold text-syndify-dark tracking-tight m-0">Nouvel appel de fonds</h3>
+          <p class="text-[13px] text-gray-500 font-medium mt-1 m-0">Créez un appel pour des travaux ou un imprévu.</p>
+        </div>
+        <button (click)="isModalOpen = false" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer border-0 outline-none shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-8 flex flex-col gap-6 bg-gray-50/30">
+        <div>
+          <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Libellé de l'appel <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="newExceptionnel.title" placeholder="Ex: Rénovation de la façade" class="w-full text-[13px] font-medium border border-gray-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#F4B840] focus:ring-2 focus:ring-[#F4B840]/20 transition-all shadow-none">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Montant global <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input type="number" [(ngModel)]="newExceptionnel.amount" placeholder="0.00" class="w-full text-[13px] font-bold border border-gray-200 rounded-xl pl-4 pr-10 py-3 outline-none focus:bg-white focus:border-[#F4B840] focus:ring-2 focus:ring-[#F4B840]/20 transition-all shadow-none">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-bold text-gray-400">MAD</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Date d'échéance <span class="text-red-500">*</span></label>
+            <input type="date" [(ngModel)]="newExceptionnel.due_date" class="w-full text-[13px] font-medium border border-gray-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#F4B840] focus:ring-2 focus:ring-[#F4B840]/20 transition-all shadow-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[13px] font-semibold text-gray-700 mb-1.5">Clé de répartition <span class="text-red-500">*</span></label>
+          <select [(ngModel)]="newExceptionnel.cle_id" class="w-full text-[13px] font-medium text-gray-700 border border-gray-200 bg-white rounded-xl px-4 py-3 outline-none focus:border-[#F4B840] focus:ring-2 focus:ring-[#F4B840]/20 transition-all cursor-pointer shadow-none">
+            <option value="" disabled selected>Sélectionnez une clé...</option>
+            <option *ngFor="let cle of listeCles" [value]="cle.id">{{ cle.nom }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="px-8 py-5 bg-white flex items-center justify-end gap-4 border-t border-gray-100">
+        <button (click)="isModalOpen = false" class="text-[13px] font-semibold text-gray-500 hover:text-syndify-dark transition-colors cursor-pointer bg-transparent border-0 outline-none">
+          Annuler
+        </button>
+        <button (click)="creerAppelExceptionnel()" [disabled]="isLoading" class="bg-[#F4B840] hover:bg-[#E3A733] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all border-0 cursor-pointer shadow-none flex items-center gap-2">
+          <svg *ngIf="!isLoading" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+          <svg *ngIf="isLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <span>{{ isLoading ? 'Création...' : "Générer l'appel" }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMATION -->
+  <div *ngIf="isConfirmModalOpen" class="fixed inset-0 z-[105] flex items-center justify-center bg-[#0B0F24]/50 backdrop-blur-sm transition-opacity p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-xl">
+      <div class="p-6 text-center">
+        <div *ngIf="confirmActionType === 'generer'" class="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center mx-auto mb-4 border border-orange-100">
+          <svg class="w-8 h-8 text-[#F4B840]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </div>
+        <div *ngIf="confirmActionType === 'envoyer'" class="w-16 h-16 rounded-full bg-syndify-accent/10 flex items-center justify-center mx-auto mb-4 border border-syndify-accent/20">
+          <svg class="w-8 h-8 text-syndify-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+        </div>
+        <h3 class="text-[18px] font-bold text-syndify-dark mb-2">
+          {{ confirmActionType === 'generer' ? 'Générer les documents' : "Envoyer l'appel" }}
+        </h3>
+        <p class="text-[13px] text-gray-500 font-medium leading-relaxed">
+          {{ confirmActionType === 'generer' 
+              ? 'Voulez-vous vraiment générer les documents pour cet appel de fonds ?' 
+              : 'Êtes-vous sûr de vouloir envoyer cet appel aux copropriétaires ?' }}
+        </p>
+      </div>
+      <div class="flex justify-center gap-3 px-6 py-4 bg-gray-50/50 border-t border-gray-100 shrink-0">
+        <button (click)="fermerConfirmModal()" class="flex-1 px-5 py-2.5 rounded-xl font-semibold text-[13px] text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer shadow-none outline-none">
+          Annuler
+        </button>
+        <button (click)="confirmerAction()" class="flex-1 flex items-center justify-center gap-2 text-[13px] font-bold px-5 py-2.5 rounded-xl text-white transition-all cursor-pointer border-0 shadow-none outline-none"
+                [ngClass]="confirmActionType === 'generer' ? 'bg-[#F4B840] hover:bg-[#E3A733]' : 'bg-syndify-accent hover:brightness-110'">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div *ngIf="showNotification" 
+       class="fixed bottom-6 right-6 z-[999] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-lg border transition-all duration-300"
+       [ngClass]="notificationType === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'">
+    <svg *ngIf="notificationType === 'success'" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <svg *ngIf="notificationType === 'error'" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+    <span class="text-[13px] font-bold">{{ notificationMessage }}</span>
+  </div>
+
+</div>

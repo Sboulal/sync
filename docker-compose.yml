@@ -1,0 +1,45 @@
+services:
+  syndify_backend:
+    build:
+      context: /home/sabou_sb/Syndify/Syndify-Backend
+      dockerfile: Dockerfile
+    container_name: syndify_backend
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    restart: unless-stopped
+    ports:
+      - "8101:8000"
+    volumes:
+      - /home/sabou_sb/Syndify/Syndify-Backend:/var/www
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres-core
+      DB_PORT: 5432
+      DB_DATABASE: syndify_db
+      DB_USERNAME: syndify_user
+      DB_PASSWORD: kDkUkz91VdkW9rLdFu9F
+    networks:
+      - nomadecloud-net
+      - syndify_network
+
+  syndify_frontend:
+    build:
+      context: /home/sabou_sb/Syndify/Syndify-Frontend
+      dockerfile: Dockerfile
+    container_name: syndify_frontend
+    ports:
+      - "127.0.0.1:4231:4200"
+    volumes:
+      - /home/sabou_sb/Syndify/Syndify-Frontend:/app
+    
+      - /app/node_modules 
+    networks:
+      - nomadecloud-net
+      - syndify_network
+
+networks:
+  syndify_network:
+    driver: bridge
+  nomadecloud-net:
+    external: true

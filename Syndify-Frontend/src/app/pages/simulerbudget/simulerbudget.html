@@ -1,0 +1,156 @@
+<div class="flex flex-col min-h-full font-['Poppins'] bg-syndify-bg overflow-x-hidden w-full max-w-full">
+
+  <app-page-header 
+    class="shrink-0 relative w-full"
+    [parentPath]="residenceInfo.nom"
+    currentPath="Simulateur de budget"
+    title="Simulateur de budget"
+    description="Simulez l'impact de vos décisions financières sur votre copropriété.">
+    
+    <div class="w-full mt-4 md:mt-0 md:absolute md:inset-x-0 md:px-6 lg:px-8 md:top-1/2 md:-translate-y-1/2 z-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      
+      <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+        
+        <div class="relative flex items-center justify-between bg-[#152D26] border border-[#2D5A4C] rounded-lg px-3 py-2 md:py-1.5 hover:bg-[#11251F] transition-all cursor-pointer w-full md:w-[220px]" 
+             (click)="isCleMenuOpen = !isCleMenuOpen">
+
+          <div class="flex items-center gap-2 w-full pr-2">
+            <span class="text-white/50 text-[12px] font-medium md:hidden">Clé:</span>
+            <span class="text-white font-bold text-[13px] md:text-[13px] truncate">
+              <ng-container *ngFor="let cle of listeCles">
+                <span *ngIf="cle.id === cleSelectionnee">
+                  {{ cle.nom || cle.titre || cle.name || 'Clé N°' + cle.id }}
+                </span>
+              </ng-container>
+              <span *ngIf="!cleSelectionnee" class="opacity-70 font-medium">Sélectionnez une clé...</span>
+            </span>
+          </div>
+          
+          <svg class="w-4 h-4 text-white opacity-80 transition-transform duration-200 shrink-0"
+               [ngClass]="{'rotate-180': isCleMenuOpen}"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+
+          <div *ngIf="isCleMenuOpen"
+               class="absolute top-[calc(100%+8px)] left-0 w-full min-w-[220px] bg-white rounded-xl border border-gray-100 py-1.5 z-[999] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)]">
+            <div *ngFor="let cle of listeCles"
+                 (click)="cleSelectionnee = cle.id; isCleMenuOpen = false; $event.stopPropagation()"
+                 class="px-3 py-2.5 text-[13px] font-bold transition-colors cursor-pointer flex items-center justify-between group"
+                 [ngClass]="cleSelectionnee === cle.id ? 'bg-[#FFF8EB] text-syndify-accent' : 'text-gray-700 hover:bg-gray-50 hover:text-syndify-dark'">
+              <span class="truncate pr-2">{{ cle.nom || cle.titre || cle.name || 'Clé N°' + cle.id }}</span>
+              <svg *ngIf="cleSelectionnee === cle.id" class="w-4 h-4 text-syndify-accent shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center justify-between bg-[#152D26] border border-[#2D5A4C] rounded-lg px-3 py-2 md:py-1.5 focus-within:bg-[#11251F] focus-within:border-syndify-accent transition-all w-full md:w-[150px]">
+           <span class="text-white/50 text-[12px] font-medium md:hidden">Montant:</span>
+           <div class="flex items-center justify-end w-full">
+             <input type="number" [(ngModel)]="montantSaisi" placeholder="0.00" 
+                    class="bg-transparent border-none text-white font-bold text-[13px] md:text-[13.5px] outline-none focus:ring-0 w-full p-0 shadow-none placeholder-white/40 text-right">
+             <span class="text-white/90 font-bold text-[11px] md:text-[12px] ml-1.5 shrink-0">MAD</span>
+           </div>
+        </div>
+      </div>
+
+      <div class="w-full md:w-auto shrink-0 mt-1 md:mt-0">
+        <button (click)="genererSimulation()" class="btn-primary shadow-none px-4 py-2 md:py-1.5 text-[13px] w-full md:w-auto flex items-center justify-center whitespace-nowrap">
+          <svg class="w-4 h-4 hidden md:block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Générer le résultat</span>
+        </button>
+      </div>
+
+    </div>
+  </app-page-header>
+
+  <div class="syndify-tabs-container mb-6 shadow-none px-4 md:px-6 lg:px-8 mt-4 md:mt-6">
+    <div class="syndify-tabs-wrapper overflow-x-auto custom-scrollbar flex-nowrap">
+      <button (click)="setTab('coproprietaire')" 
+              class="syndify-tab whitespace-nowrap"
+              [ngClass]="activeTab === 'coproprietaire' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+        Par copropriétaire
+      </button>
+      <button (click)="setTab('lot')" 
+              class="syndify-tab whitespace-nowrap"
+              [ngClass]="activeTab === 'lot' ? 'syndify-tab-active' : 'syndify-tab-inactive'">
+        Par bien
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 px-4 md:px-6 lg:px-8 pb-8 flex flex-col overflow-visible w-full min-w-0 max-w-full box-border">
+    <div class="syndify-table-container flex-1 overflow-x-auto w-full max-w-full custom-scrollbar">
+      <table class="syndify-table w-full whitespace-nowrap min-w-max text-left">
+        
+        <thead class="syndify-table-thead">
+          <tr>
+            <th class="syndify-table-th px-4 py-3">
+              {{ activeTab === 'coproprietaire' ? 'Nom du copropriétaire' : 'Bien' }}
+            </th>
+            <th class="syndify-table-th px-4 py-3 text-center hidden sm:table-cell">Tantièmes</th>
+            <th class="syndify-table-th px-4 py-3 text-right hidden sm:table-cell">Budget</th>
+            <th class="syndify-table-th px-4 py-3 text-right">Total</th>
+          </tr>
+        </thead>
+        
+        <tbody class="syndify-table-tbody">
+          
+          <tr *ngIf="isLoading" class="syndify-table-tr">
+              <td colspan="4" class="syndify-table-td py-8 border-b-0 text-center">
+                  <div class="flex flex-col items-center justify-center gap-3 text-gray-400 italic">
+                      <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                      <span class="text-[13px] sm:text-[14px]">Chargement des données...</span>
+                  </div>
+              </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && resultatsSimulation.length === 0" class="syndify-table-tr bg-white hover:bg-white">
+            <td colspan="4" class="border-b-0 p-0 text-center">
+              <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl p-4">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-gray-400 italic text-[12px] sm:text-[14px] font-normal text-center">Aucune simulation générée pour le moment.</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let item of resultatsSimulation" class="syndify-table-tr hover:bg-gray-50/50 transition-colors">
+            
+            <td class="syndify-table-td px-4 py-3">
+              <div class="w-full min-w-0 max-w-[150px] sm:max-w-[250px] md:max-w-[350px]">
+                <ng-container *ngIf="activeTab === 'coproprietaire'">
+                  <span class="font-bold text-[12px] sm:text-[13px] text-syndify-dark truncate block w-full" [title]="item.nom || item.full_name">
+                    {{ item.nom || item.full_name }}
+                  </span>
+                </ng-container>
+                
+                <ng-container *ngIf="activeTab === 'lot'">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-bold text-syndify-dark bg-gray-100 truncate max-w-full" [title]="item.identifiant || item.numero_lot">
+                    {{ item.identifiant || item.numero_lot }}
+                  </span>
+                </ng-container>
+              </div>
+            </td>
+
+            <td class="syndify-table-td text-center font-bold text-gray-500 text-[12px] sm:text-[13px] px-4 py-3 hidden sm:table-cell">
+              {{ item.tantiemes || item.tantieme || 0 }}
+            </td>
+            
+            <td class="syndify-table-td text-right text-slate-600 font-bold text-[12px] sm:text-[13px] px-4 py-3 hidden sm:table-cell">
+              {{ (item.budget || 0) | number:'1.2-2' }} <span class="text-[10px] opacity-60 ml-0.5 font-medium">MAD</span>
+            </td>
+            
+            <td class="syndify-table-td text-right font-bold text-syndify-dark text-[12px] sm:text-[13px] px-4 py-3">
+              {{ (item.total || 0) | number:'1.2-2' }} <span class="text-[10px] opacity-60 ml-0.5 font-medium">MAD</span>
+            </td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

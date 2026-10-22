@@ -1,0 +1,226 @@
+<div class="flex flex-col min-h-full font-['Poppins'] bg-syndify-bg w-full max-w-full overflow-x-hidden">
+
+  <app-page-header 
+    class="shrink-0 w-full"
+    [parentPath]="residenceInfo.nom" 
+    currentPath="Gestion des Biens"
+    title="Gestion des Biens"
+    description="Gérez l'ensemble de vos biens en toute simplicité.">
+    
+    <div class="flex items-center gap-3 w-full md:w-auto mt-3 md:mt-0">
+      <button (click)="openModal()" class="btn-primary w-full md:w-auto justify-center shadow-none">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+        Ajouter un bien
+      </button>
+    </div>
+
+  </app-page-header>
+
+  <div class="flex-1 p-4 md:p-6 lg:p-8 flex flex-col overflow-visible w-full min-w-0 max-w-full box-border">
+    <div class="bg-white rounded-xl shadow-none border border-gray-200 flex flex-col relative !overflow-visible z-10 w-full max-w-full min-w-0">
+      
+      <div *ngIf="activeDropdown" (click)="closeDropdown()" class="fixed inset-0 z-30 cursor-default"></div>
+
+      <div class="syndify-table-container !overflow-visible overflow-x-auto w-full max-w-full custom-scrollbar pb-24">
+        
+        <table class="syndify-table w-full whitespace-nowrap min-w-max text-left">
+          <thead class="syndify-table-thead">
+            <tr>
+              <th class="syndify-table-th px-4 py-3 hidden md:table-cell">Identifiant</th>
+              <th class="syndify-table-th px-4 py-3">Type du bien</th>
+              <th class="syndify-table-th px-4 py-3 hidden sm:table-cell">N° de porte</th>
+              <th class="syndify-table-th px-4 py-3 hidden sm:table-cell">Bâtiment</th>
+              <th class="syndify-table-th px-4 py-3 hidden md:table-cell">Étage</th>
+              <th class="syndify-table-th text-right px-4 py-3 pr-6">Outils</th>
+            </tr>
+          </thead>
+          
+          <tbody class="syndify-table-tbody">
+            
+            <tr *ngIf="isLoading" class="bg-white hover:bg-white">
+              <td colspan="6" class="border-b-0 p-0 text-center">
+                <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl text-gray-400 italic">
+                  <div class="w-6 h-6 border-2 border-syndify-accent border-t-transparent rounded-full animate-spin"></div>
+                  <span class="text-[13px] sm:text-[14px] font-normal">Chargement des lots...</span>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="!isLoading && (!lots || lots.length === 0)" class="bg-white hover:bg-white">
+              <td colspan="6" class="border-b-0 p-0 text-center">
+                <div class="flex flex-col items-center justify-center gap-3 min-h-[160px] w-full bg-white rounded-b-xl p-4">
+                  <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                  </svg>
+                  <span class="text-gray-400 italic text-[12px] sm:text-[14px] font-normal">Aucun lot trouvé.</span>
+                </div>
+              </td>
+            </tr>
+            
+            <ng-container *ngIf="lots && lots.length > 0">
+              <tr *ngFor="let lot of lots; let isLast = last" 
+                  (click)="openModal(lot)" class="syndify-table-tr hover:bg-gray-50/50 transition-colors cursor-pointer group"
+                  [ngClass]="{'z-[50] relative': activeDropdown === lot.id}">
+                  
+                <td class="syndify-table-td px-4 py-3 hidden md:table-cell">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-bold bg-blue-50 text-blue-600 border border-blue-100 truncate max-w-[120px]" [title]="formatLotId(lot.id)">
+                      {{ formatLotId(lot.id) }}
+                  </span>
+                </td>
+
+                <td class="syndify-table-td px-4 py-3">
+                  <div class="flex items-center gap-3 w-full min-w-0 max-w-[180px] sm:max-w-none">
+                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 shrink-0">
+                      <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    </div>
+                    <span class="font-bold text-[12px] sm:text-[13px] text-syndify-dark truncate block w-full">
+                      {{ lot.type || 'Appartement' }}
+                    </span>
+                  </div>
+                </td>
+
+                <td class="syndify-table-td px-4 py-3 hidden sm:table-cell">
+                  <div class="text-[12px] sm:text-[13px] text-slate-700 font-semibold truncate max-w-[100px]">
+                    {{ lot.numero_porte }}
+                  </div>
+                </td>
+
+                <td class="syndify-table-td px-4 py-3 hidden sm:table-cell">
+                  <div class="text-[12px] sm:text-[13px] text-slate-500 italic truncate max-w-[100px]">
+                    {{ lot.batiment || '--' }}
+                  </div>
+                </td>
+
+                <td class="syndify-table-td px-4 py-3 hidden md:table-cell">
+                  <div class="text-[12px] sm:text-[13px] text-slate-500 truncate max-w-[100px]">
+                    {{ lot.etage || '--' }}
+                  </div>
+                </td>
+
+                <td class="syndify-table-td text-right px-4 py-3 pr-6">
+                  <div class="relative inline-block text-left">
+                    
+                    <button (click)="$event.stopPropagation(); toggleDropdown(lot.id, $event)" 
+                            [ngClass]="{'bg-syndify-accent/10 text-syndify-accent': activeDropdown === lot.id}"
+                            class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-gray-400 hover:text-syndify-dark hover:bg-gray-100 transition-all cursor-pointer border-0 bg-transparent outline-none ml-auto">
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14a2 2 0 100-4 2 2 0 000 4zm-7 0a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4z"></path></svg>
+                    </button>
+
+                    <div *ngIf="activeDropdown === lot.id" 
+                         (click)="$event.stopPropagation()"
+                         class="absolute syndify-dropdown-menu right-0 z-[99] min-w-[160px] shadow-lg rounded-xl border border-gray-100 bg-white py-1.5"
+                         [ngClass]="isLast && lots.length > 1 ? 'bottom-[calc(100%+4px)] origin-bottom-right' : 'top-[calc(100%+4px)] origin-top-right'">
+                      
+                      <button (click)="$event.stopPropagation(); openModal(lot)" class="syndify-dropdown-item group w-full text-left flex items-center px-4 py-2 hover:bg-gray-50">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-syndify-accent transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <span class="font-bold text-[12px] sm:text-[13px] text-slate-600 group-hover:text-syndify-accent transition-colors">Modifier</span>
+                      </button>
+                      
+                      <div class="syndify-dropdown-divider my-1 border-t border-gray-100"></div>
+                      
+                      <button (click)="$event.stopPropagation(); supprimerLot(lot)" class="syndify-dropdown-item-danger group w-full text-left flex items-center px-4 py-2 hover:bg-red-50">
+                        <svg class="w-4 h-4 text-red-400 group-hover:text-red-600 transition-colors mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span class="font-bold text-[12px] sm:text-[13px] text-red-500 group-hover:text-red-600 transition-colors">Supprimer</span>
+                      </button>
+
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-[99] flex items-center justify-center bg-[#0B0F24]/50 backdrop-blur-sm transition-opacity p-4 w-full h-full">
+    <div class="bg-white rounded-2xl w-full max-w-2xl flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-none relative overflow-visible">
+      
+      <div class="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 bg-white rounded-t-2xl z-20 shrink-0">
+        <div>
+          <h3 class="text-[15px] sm:text-[18px] font-bold text-syndify-dark tracking-tight">
+            {{ lotForm.id ? 'Modifier le bien ' + formatLotId(lotForm.id) : 'Nouveau Bien' }}
+          </h3>
+          <p class="text-[11px] sm:text-[13px] text-gray-500 font-medium mt-0.5 sm:mt-1">Gérez les informations et l'affectation du bien.</p>
+        </div>
+        <button (click)="closeModal()" class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer border-0 outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 space-y-6 sm:space-y-8 overflow-y-auto max-h-[70vh] custom-scrollbar bg-gray-50/30 flex-1">
+        
+        <div>
+          <h4 class="text-[13px] sm:text-[14px] font-bold text-syndify-dark mb-3 sm:mb-4 border-b border-gray-100 pb-2">Informations du Bien</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full">
+            <div class="w-full">
+              <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Type du bien <span class="text-red-500">*</span></label>
+              <select [(ngModel)]="lotForm.type" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all cursor-pointer shadow-none">
+                <option value="Appartement">Appartement</option>
+                <option value="Garage">Garage</option>
+                <option value="Magasin">Magasin</option>
+              </select>
+            </div>
+            <div class="w-full">
+              <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">N° de porte <span class="text-red-500">*</span></label>
+              <input type="text" [(ngModel)]="lotForm.numero_porte" placeholder="Ex: R1" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all shadow-none">
+            </div>
+            <div class="w-full">
+              <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Bâtiment</label>
+              <input type="text" [(ngModel)]="lotForm.batiment" placeholder="Ex: Bat A" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all shadow-none">
+            </div>
+            <div class="w-full">
+              <label class="text-[12px] sm:text-[13px] font-semibold text-gray-700 block mb-1.5 sm:mb-2">Étage</label>
+              <input type="text" [(ngModel)]="lotForm.etage" placeholder="Ex: RDC" class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-[12px] sm:text-[13px] focus:bg-white focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all shadow-none">
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <h4 class="text-[13px] sm:text-[14px] font-bold text-syndify-dark mb-3 sm:mb-4 border-b border-gray-100 pb-2">Affectation du Propriétaire</h4>
+          <select [(ngModel)]="lotForm.owner_id" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border border-gray-200 bg-white text-[12px] sm:text-[13px] font-medium text-gray-700 focus:border-syndify-accent focus:ring-2 focus:ring-syndify-accent/20 outline-none transition-all cursor-pointer">
+            <option [ngValue]="null">-- Aucun propriétaire --</option>
+            <option *ngFor="let user of listCoproprietaires" [value]="user.user_id">
+              {{ user.nom }} ({{ user.email }})
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-4 bg-white rounded-b-2xl border-t border-gray-100 z-20 shrink-0 w-full">
+        <button (click)="closeModal()" class="btn-secondary w-full sm:w-auto justify-center">
+          Annuler
+        </button>
+        <button (click)="enregistrerLot()" [disabled]="!lotForm.numero_porte" class="btn-primary w-full sm:w-auto justify-center">
+          <svg class="w-4 h-4 mr-2 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B0F24]/50 backdrop-blur-sm transition-opacity p-4 w-full h-full">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden flex flex-col font-['Poppins'] transform transition-all border border-gray-200 shadow-none mx-auto">
+      <div class="p-5 sm:p-6 text-center">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 sm:w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <h3 class="text-[16px] sm:text-[18px] font-bold text-syndify-dark mb-2">Confirmer la suppression</h3>
+        <p class="text-[12px] sm:text-[13px] text-gray-500 font-medium px-2 sm:px-0">Êtes-vous sûr de vouloir supprimer ce lot ? Cette action est irréversible.</p>
+      </div>
+      <div class="flex flex-col-reverse sm:flex-row justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-4 bg-gray-50/50 border-t border-gray-100 shrink-0 w-full">
+        <button (click)="closeDeleteModal()" class="btn-secondary w-full justify-center">
+          Annuler
+        </button>
+        <button (click)="confirmerSuppression()" class="btn-primary !bg-red-500 hover:!bg-red-600 w-full justify-center !border-0">
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

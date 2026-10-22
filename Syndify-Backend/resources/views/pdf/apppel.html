@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Appel de fonds</title>
+    <style>
+        /* 🟢 Font Poppins */
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 400;
+            src: url('{{ public_path("fonts/Poppins-Regular.ttf") }}') format('truetype');
+        }
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 500;
+            src: url('{{ public_path("fonts/Poppins-Medium.ttf") }}') format('truetype');
+        }
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 600;
+            src: url('{{ public_path("fonts/Poppins-SemiBold.ttf") }}') format('truetype');
+        }
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 700;
+            src: url('{{ public_path("fonts/Poppins-Bold.ttf") }}') format('truetype');
+        }
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 800;
+            src: url('{{ public_path("fonts/Poppins-ExtraBold.ttf") }}') format('truetype');
+        }
+
+        /* 🟢 Marges exactes dyal l-page (DOMPDF / Snappy compatible) */
+        @page {
+            margin: 50px 60px 80px 60px;
+        }
+
+        body {
+            font-family: 'Poppins', Helvetica, Arial, sans-serif;
+            font-size: 14px; /* Kberna chwiya l-font bach yji b7al tswira */
+            color: #2D2D2D; /* Couleur dyal texte l-3adi */
+            line-height: 1.6; /* Rkhfna stoura bach tji l-ktaba merta7a */
+            font-weight: 400; 
+        }
+
+        /* Couleur Bleu Nuit dyal les Titres */
+        .text-navy {
+            color: #171649;
+        }
+
+        /* --- LOGO --- */
+        .logo-container {
+            margin-bottom: 45px; 
+        }
+
+        /* --- HEADER TABLE --- */
+        .header-table {
+            width: 100%;
+            margin-bottom: 50px; /* L'espace li bin l-header w l-bdaya dyal l-message */
+            border-collapse: collapse;
+        }
+        .header-table td {
+            vertical-align: top;
+        }
+
+        /* Gauche */
+        .date-text {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px; 
+        }
+        .main-title {
+            font-size: 42px; 
+            font-weight: 800;
+            margin: 0 0 6px 0; 
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        .reference-text {
+            font-size: 13px;
+            color: #555555;
+            font-weight: 600;
+        }
+        .reference-text span {
+            color: #2D2D2D;
+        }
+
+        /* Droite */
+        .right-column {
+            padding-left: 20px; 
+            width: 50%;
+        }
+        .info-block {
+            margin-bottom: 22px; /* L'espace exact bin Destinataire, Adresse w Lots */
+        }
+        .info-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px; 
+            display: block;
+        }
+        .info-value {
+            font-size: 14px;
+            font-weight: 400;
+            display: block;
+            line-height: 1.4;
+        }
+
+        /* --- CONTENU PRINCIPAL --- */
+        .content-section {
+            margin-top: 10px;
+        }
+        .content-section p {
+            margin: 0 0 25px 0; /* L'espace kbir bin les paragraphes b7al tswira */
+            text-align: left;
+        }
+        .content-section .tight-p {
+            margin: 0 0 8px 0; /* L'espace sghir bin Montant w Date */
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            position: fixed;
+            bottom: -30px; 
+            left: 0;
+            right: 0;
+            font-size: 12px;
+            color: #333333;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <svg width="60" height="60" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="55" height="55" rx="14" fill="#171649"/>
+            <path d="M14 34L27.5 20L41 34" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 34L27.5 28L33 34" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 40H41" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <table class="header-table">
+        <tr>
+            <td style="width: 50%;">
+                <div class="date-text text-navy">Le 9 Octobre 2024</div>
+                <h1 class="main-title text-navy">Appel de fonds</h1>
+                <div class="reference-text">Référence > <span>SAF-529-2024</span></div>
+            </td>
+
+            <td class="right-column">
+                <div class="info-block">
+                    <span class="info-title text-navy">Destinataire</span>
+                    <span class="info-value">Monsieur/Madame [nom du copropriétaire]</span>
+                </div>
+
+                <div class="info-block">
+                    <span class="info-title text-navy">Adresse</span>
+                    <span class="info-value">[Adresse de la copropriété]</span>
+                </div>
+
+                <div class="info-block" style="margin-bottom: 0;">
+                    <span class="info-title text-navy">Lots</span>
+                    <span class="info-value">[liste des lots du copropriétaire]</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="content-section">
+        <p>Cher(e) [Nom du propriétaire],</p>
+
+        <p>Nous vous informons par la présente qu'un appel de fonds est nécessaire pour couvrir les charges courantes de la copropriété. Ces charges comprennent des provisions pour les frais de gestion, d'entretien et les dépenses courantes, réparties selon les clés de répartition en vigueur.</p>
+
+        <p class="tight-p text-navy">Montant total dû : <strong>[Total]</strong></p>
+        <p class="text-navy" style="margin-bottom: 25px;">Date limite de paiement : <strong>[Date]</strong></p>
+
+        <p>Pour faciliter le règlement, vous pouvez effectuer le paiement par Virement bancaire</p>
+
+        <p>Nous vous remercions de votre collaboration et de votre promptitude à effectuer ce règlement.<br>En cas de questions, n’hésitez pas à contacter le syndic.</p>
+
+        <p>Cordialement.</p>
+    </div>
+
+    <div class="footer">
+        Contact : [Numéro de téléphone] / [Email]<br>
+        Numéro de compte bancaire : [IBAN]<br>
+        Disclaimer légal : Ce document est un appel de fonds officiel et doit être traité comme tel.
+    </div>
+
+</body>
+</html>
