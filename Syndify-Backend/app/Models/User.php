@@ -7,16 +7,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids; // 🟢 Rjje3naha
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUuids , SoftDeletes; // 🟢 زيد هادي
+    // 🟢 Zdnaha hna bash Laravel may7wwelch l-id l "0"
+    use HasApiTokens, HasFactory, Notifiable, HasUuids, SoftDeletes; 
 
-    // 🟢 7iydna l'override dyal primaryKey, daba ghaykhdem b 'id' oumatiqement
-
-   protected $fillable = [
+    protected $fillable = [
         'identifier',
         'full_name',
         'email',
@@ -29,7 +27,6 @@ class User extends Authenticatable
     ];
 
     protected $hidden = [
-         
         'remember_token', 
         'activation_code'
     ];
@@ -52,7 +49,6 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    // L'Relation m3a Lots
     public function lots()
     {
         return $this->belongsToMany(Lot::class, 'user_owner_unit', 'user_id', 'unit_id')

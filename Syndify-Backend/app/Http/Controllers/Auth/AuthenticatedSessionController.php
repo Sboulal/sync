@@ -24,10 +24,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // 🟢 Laravel Breeze kay-authentifier l-user hna
         $request->authenticate();
 
+        // 🟢 Kay-regenerer la session bash y7miha mn l-piratage
         $request->session()->regenerate();
 
+        // 🟢 Kay-redirigé l-user l-dashboard
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
