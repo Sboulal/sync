@@ -136,7 +136,11 @@
                             <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Syndic') }}&background=1A5EAC&color=fff" class="w-9 h-9 rounded-full shadow-sm" alt="Avatar">
                         </button>
                         <div x-show="profileDropdown" x-cloak class="absolute right-0 mt-3 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
-                            <form method="POST" action="{{ route('logout') }}">
+                            <x-dropdown-link :href="route('profile.edit')">
+    {{ __('Mon Profil') }}
+</x-dropdown-link>
+                           
+                        <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="flex items-center gap-3 px-4 py-2 w-full text-left text-sm font-bold text-red-600 hover:bg-red-50">
                                     Déconnexion

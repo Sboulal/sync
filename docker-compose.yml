@@ -4,17 +4,19 @@ services:
       context: ./Syndify-Backend
       dockerfile: Dockerfile
     container_name: syndify_backend
-    command: php artisan serve --host=0.0.0.0 --port=8000
+    command: php -d memory_limit=-1 artisan serve --host=0.0.0.0 --port=8000
     restart: unless-stopped
     ports:
       - "8101:8000"
-    volumes:
-      - ./Syndify-Backend:/var/www
+    # volumes:
+    #   - ./Syndify-Backend:/var/www
+    #   - /var/www/vendor # 🟢 HADI GHATMN3 L'HOST Y-ECRASI VENDOR DYAL DOCKER
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
+      APP_URL: "http://localhost:8101" # 🟢 ZID HADI BACH LES REDIRECTIONS YKHDMO S7A7
       DB_CONNECTION: pgsql
-      DB_HOST: postgres-local      # 🟢 Tbedlat (kanet postgres-core)
+      DB_HOST: postgres-local
       DB_PORT: 5432
       DB_DATABASE: syndic_db
       DB_USERNAME: postgres
@@ -23,7 +25,7 @@ services:
       - syndify_network
     depends_on:
       - postgres-local
-      
+
   postgres-local:
     image: postgres:15-alpine
     container_name: syndify_db_local

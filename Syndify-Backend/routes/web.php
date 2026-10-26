@@ -13,7 +13,7 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 // 🟢 NOUVELLES ROUTES POUR LE MENU
-// Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::get('/coproprietes', function () { return view('coproprietes.index'); })->name('coproprietes.index');
     Route::get('/assemblees', function () { return view('assemblees.index'); })->name('assemblees.index');
     Route::get('/documents', function () { return view('documents.index'); })->name('documents.index');
@@ -31,6 +31,7 @@ Route::get('/dashboard', function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
+    // Route::get('/settings', function () { return view('settings.index'); })->name('settings.index');
+ });
 
 require __DIR__.'/auth.php';

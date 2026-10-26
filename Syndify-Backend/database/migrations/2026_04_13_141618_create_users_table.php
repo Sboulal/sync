@@ -12,10 +12,12 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->string('identifier')->nullable()->unique(); 
-            $table->string('full_name');
+           $table->string('full_name'); 
             $table->string('email')->unique();
-            $table->string('tel')->nullable(); // Awla smitiha phone
-            $table->string('password')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('tel')->nullable();
+            $table->string('role');
             $table->string('photo')->nullable(); 
             // 🟢 Colonnes dyal l-OTP (BLA password)
             $table->string('activation_code')->nullable();

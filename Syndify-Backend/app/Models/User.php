@@ -19,6 +19,7 @@ class User extends Authenticatable
         'full_name',
         'email',
         'tel',
+        'role',
         'password',
         'activation_code',
         'otp_expires_at',
